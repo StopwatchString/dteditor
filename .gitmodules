@@ -1,0 +1,3 @@
+[submodule "extern/cpputils"]
+	path = extern/cpputils
+	url = https://github.com/StopwatchString/cpputils.git
