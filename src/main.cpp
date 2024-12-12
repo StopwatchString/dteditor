@@ -2,6 +2,8 @@
 
 #include "cpputils/windows/dwm.h"
 
+#include "icon.h"
+
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -9,9 +11,11 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include "GLFW/glfw3native.h"
 
-
 #include <iostream>
 #include <vector>
+
+#include <ole2.h>
+#include <windows.h>
 
 // My stuff
 const std::string file = "data/n39_w084_1arc_v3.dt2";
@@ -125,6 +129,18 @@ static void glfw_drop_callback(GLFWwindow* window, int count, const char** paths
 
 int main()
 {
+    const char* iconPath = "dteditor.ico";
+
+    // Load the .ico file as an HICON
+    HICON hIcon = (HICON)LoadImageA(
+        NULL,              // No instance handle required for a file
+        iconPath,          // Path to the .ico file
+        IMAGE_ICON,        // Specify that we're loading an icon
+        0, 0,              // Default size; let Windows scale it
+        LR_LOADFROMFILE |  // Load from file
+        LR_DEFAULTSIZE     // Use default size if not specified
+    );
+
     if (!glfwInit()) {
         return EXIT_FAILURE;
     }
@@ -145,6 +161,8 @@ int main()
 
     HWND hWnd = glfwGetWin32Window(window);
     setWindowDarkMode(hWnd, true);
+    SendMessage(hWnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+    SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();

@@ -98,5 +98,8 @@
     <ClInclude Include="extern\cpputils\include\cpputils\windows\dwm.h">
       <Filter>Header Files\cpputils</Filter>
     </ClInclude>
+    <ClInclude Include="include\icon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
