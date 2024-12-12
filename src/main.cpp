@@ -1,5 +1,15 @@
 #include "DtedFile.h"
 
+#include "cpputils/windows/dwm.h"
+
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+#include "GLFW/glfw3.h"
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include "GLFW/glfw3native.h"
+
+
 #include <iostream>
 #include <vector>
 
@@ -20,35 +30,101 @@ const std::vector<std::string> getDtedFileDataLines(const DtedFile& file) {
 
     // User Header Label
     lines.push_back("----User Header Label----");
+    lines.push_back("recognitionSentinel: " + bytesToString(file.uhl().recognitionSentinel));
+    lines.push_back("fixedStandard: " + bytesToString(file.uhl().fixedStandard));
+    lines.push_back("longitudeOfOrigin: " + bytesToString(file.uhl().longitudeOfOrigin));
+    lines.push_back("latitudeOfOrigin: " + bytesToString(file.uhl().latitudeOfOrigin));
+    lines.push_back("longitudeInterval: " + bytesToString(file.uhl().longitudeInterval));
+    lines.push_back("latitudeInterval: " + bytesToString(file.uhl().latitudeInterval));
+    lines.push_back("absoluteVerticalAccuracy: " + bytesToString(file.uhl().absoluteVerticalAccuracy));
+    lines.push_back("securityCode: " + bytesToString(file.uhl().securityCode));
+    lines.push_back("uniqueReference: " + bytesToString(file.uhl().uniqueReference));
+    lines.push_back("numberOfLongitudeLines: " + bytesToString(file.uhl().numberOfLongitudeLines));
+    lines.push_back("numberOfLatitudePoints: " + bytesToString(file.uhl().numberOfLatitudePoints));
+    lines.push_back("multipleAccuracy: " + bytesToString(file.uhl().multipleAccuracy));
+    lines.push_back("reserved: " + bytesToString(file.uhl().reserved));
     lines.push_back("");
 
     // Data Set Identification
     lines.push_back("----Data Set Identification----");
+    lines.push_back("recognitionSentinel: " + bytesToString(file.dsi().recognitionSentinel));
+    lines.push_back("securityCode: " + bytesToString(file.dsi().securityCode));
+    lines.push_back("securityControlMarkings: " + bytesToString(file.dsi().securityControlMarkings));
+    lines.push_back("securityHandlingDescription: " + bytesToString(file.dsi().securityHandlingDescription));
+    lines.push_back("reserved1: " + bytesToString(file.dsi().reserved1));
+    lines.push_back("dtedLevel: " + bytesToString(file.dsi().dtedLevel));
+    lines.push_back("uniqueReference: " + bytesToString(file.dsi().uniqueReference));
+    lines.push_back("reserved2: " + bytesToString(file.dsi().reserved2));
+    lines.push_back("dataEditionNumber: " + bytesToString(file.dsi().dataEditionNumber));
+    lines.push_back("matchMergeVersion: " + bytesToString(file.dsi().matchMergeVersion));
+    lines.push_back("maintenanceDate: " + bytesToString(file.dsi().maintenanceDate));
+    lines.push_back("matchMergeDate: " + bytesToString(file.dsi().matchMergeDate));
+    lines.push_back("maintenanceDescCode: " + bytesToString(file.dsi().maintenanceDescCode));
+    lines.push_back("producerCode: " + bytesToString(file.dsi().producerCode));
+    lines.push_back("reserved3: " + bytesToString(file.dsi().reserved3));
+    lines.push_back("productSpec: " + bytesToString(file.dsi().productSpec));
+    lines.push_back("productSpecAmend: " + bytesToString(file.dsi().productSpecAmend));
+    lines.push_back("productSpecDate: " + bytesToString(file.dsi().productSpecDate));
+    lines.push_back("verticalDatum: " + bytesToString(file.dsi().verticalDatum));
+    lines.push_back("horizontalDatum: " + bytesToString(file.dsi().horizontalDatum));
+    lines.push_back("digitizingSystem: " + bytesToString(file.dsi().digitizingSystem));
+    lines.push_back("compilationDate: " + bytesToString(file.dsi().compilationDate));
+    lines.push_back("reserved4: " + bytesToString(file.dsi().reserved4));
+    lines.push_back("latOrigin: " + bytesToString(file.dsi().latOrigin));
+    lines.push_back("lonOrigin: " + bytesToString(file.dsi().lonOrigin));
+    lines.push_back("latSWCorner: " + bytesToString(file.dsi().latSWCorner));
+    lines.push_back("lonSWCorner: " + bytesToString(file.dsi().lonSWCorner));
+    lines.push_back("latNWCorner: " + bytesToString(file.dsi().latNWCorner));
+    lines.push_back("lonNWCorner: " + bytesToString(file.dsi().lonNWCorner));
+    lines.push_back("latNECorner: " + bytesToString(file.dsi().latNECorner));
+    lines.push_back("lonNECorner: " + bytesToString(file.dsi().lonNECorner));
+    lines.push_back("latSECorner: " + bytesToString(file.dsi().latSECorner));
+    lines.push_back("lonSECorner: " + bytesToString(file.dsi().lonSECorner));
+    lines.push_back("orientationAngle: " + bytesToString(file.dsi().orientationAngle));
+    lines.push_back("latitudeInterval: " + bytesToString(file.dsi().latitudeInterval));
+    lines.push_back("longitudeInterval: " + bytesToString(file.dsi().longitudeInterval));
+    lines.push_back("numberLatitudeLines: " + bytesToString(file.dsi().numberLatitudeLines));
+    lines.push_back("numberLongitudeLines: " + bytesToString(file.dsi().numberLongitudeLines));
+    lines.push_back("partialCellIndicator: " + bytesToString(file.dsi().partialCellIndicator));
+    lines.push_back("coveragePercent: " + bytesToString(file.dsi().coveragePercent));
+    lines.push_back("geoidUndulation: " + bytesToString(file.dsi().geoidUndulation));
+    lines.push_back("reserved5: " + bytesToString(file.dsi().reserved5));
     lines.push_back("");
 
     // Accuracy Description Record
     lines.push_back("----Accuracy Description Record----");
+    lines.push_back("recognitionSentinel: " + bytesToString(file.acc().recognitionSentinel));
+    lines.push_back("absHorizontalAccuracy: " + bytesToString(file.acc().absHorizontalAccuracy));
+    lines.push_back("absVerticalAccuracy: " + bytesToString(file.acc().absVerticalAccuracy));
+    lines.push_back("relHorizontalAccuracy: " + bytesToString(file.acc().relHorizontalAccuracy));
+    lines.push_back("relVerticalAccuracy: " + bytesToString(file.acc().relVerticalAccuracy));
+    lines.push_back("reserved1: " + bytesToString(file.acc().reserved1));
+    lines.push_back("reservedDMA: " + bytesToString(file.acc().reservedDMA));
+    lines.push_back("reserved2: " + bytesToString(file.acc().reserved2));
+    lines.push_back("accuracyOutlineFlag: " + bytesToString(file.acc().accuracyOutlineFlag));
+    lines.push_back("accuracySubregions: " + bytesToString(file.acc().accuracySubregions));
+    lines.push_back("reservedDMA2: " + bytesToString(file.acc().reservedDMA2));
+    lines.push_back("reserved3: " + bytesToString(file.acc().reserved3));
     lines.push_back("");
 
     return lines;
 }
-
-// DearImgui/GLFW Stuff
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-#include "GLFW/glfw3.h"
 
 static void glfw_error_callback(int error, const char* description)
 {
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
+bool loadNewFile = false;
+std::string newFilePath = "";
+static void glfw_drop_callback(GLFWwindow* window, int count, const char** paths)
+{
+    newFilePath = paths[0];
+    loadNewFile = true;
+}
 
 int main()
 {
-    DtedFile dtedFile(file);
-
     if (!glfwInit()) {
         return EXIT_FAILURE;
     }
@@ -57,12 +133,18 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 
-    GLFWwindow* window = glfwCreateWindow(720, 1080, "Dteditor", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(600, 1000, "Dteditor", nullptr, nullptr);
     if (window == nullptr) {
         return EXIT_FAILURE;
     }
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
+
+    glfwSetErrorCallback(glfw_error_callback);
+    glfwSetDropCallback(window, glfw_drop_callback);
+
+    HWND hWnd = glfwGetWin32Window(window);
+    setWindowDarkMode(hWnd, true);
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -78,11 +160,16 @@ int main()
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     // Text data
+    DtedFile dtedFile(file);
     std::vector<std::string> text_data = getDtedFileDataLines(dtedFile);
-
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
+
+        if (loadNewFile) {
+            DtedFile newFile(newFilePath);
+            text_data = getDtedFileDataLines(newFile);
+        }
 
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -121,4 +208,14 @@ int main()
     glfwTerminate();
 
     return 0;
+}
+
+int WinMain(
+    HINSTANCE hInstance,
+    HINSTANCE hPrevInstance,
+               LPSTR     lpCmdLine,
+               int       nShowCmd
+)
+{
+    main();
 }
