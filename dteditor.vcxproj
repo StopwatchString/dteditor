@@ -105,7 +105,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)include\dearimgui;$(SolutionDir)extern\cpputils\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)include\dearimgui;$(SolutionDir)extern\cpputils\include;$(SolutionDir)extern\glh\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -122,7 +122,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)include\dearimgui;$(SolutionDir)extern\cpputils\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)include\dearimgui;$(SolutionDir)extern\cpputils\include;$(SolutionDir)extern\glh\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -135,6 +135,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="extern\glh\src\glad\gl.c" />
+    <ClCompile Include="extern\glh\src\glad\wgl.c" />
+    <ClCompile Include="extern\glh\src\glh\classes\D3DInteropTexture2D.cpp" />
+    <ClCompile Include="extern\glh\src\glh\classes\Framebuffer.cpp" />
+    <ClCompile Include="extern\glh\src\glh\classes\Program.cpp" />
+    <ClCompile Include="extern\glh\src\glh\classes\Shader.cpp" />
+    <ClCompile Include="extern\glh\src\glh\classes\Texture2D.cpp" />
+    <ClCompile Include="extern\glh\src\glh\font.cpp" />
     <ClCompile Include="src\dearimgui\imgui.cpp" />
     <ClCompile Include="src\dearimgui\imgui_demo.cpp" />
     <ClCompile Include="src\dearimgui\imgui_draw.cpp" />
@@ -147,6 +155,24 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="extern\cpputils\include\cpputils\windows\dwm.h" />
+    <ClInclude Include="extern\glh\include\glad\gl.h" />
+    <ClInclude Include="extern\glh\include\glad\wgl.h" />
+    <ClInclude Include="extern\glh\include\glh\classes\D3DInteropTexture2D.h" />
+    <ClInclude Include="extern\glh\include\glh\classes\Framebuffer.h" />
+    <ClInclude Include="extern\glh\include\glh\classes\Program.h" />
+    <ClInclude Include="extern\glh\include\glh\classes\Shader.h" />
+    <ClInclude Include="extern\glh\include\glh\classes\SharedLibraryLoader.h" />
+    <ClInclude Include="extern\glh\include\glh\classes\Texture2D.h" />
+    <ClInclude Include="extern\glh\include\glh\font.h" />
+    <ClInclude Include="extern\glh\include\glh\functionWrappers.h" />
+    <ClInclude Include="extern\glh\include\glh\glh.h" />
+    <ClInclude Include="extern\glh\include\glh\macros.h" />
+    <ClInclude Include="extern\glh\include\glh\openglapi.h" />
+    <ClInclude Include="extern\glh\include\glh\RFont\DejaVuSans.h" />
+    <ClInclude Include="extern\glh\include\glh\RFont\DroidSansJapanese.h" />
+    <ClInclude Include="extern\glh\include\glh\RFont\RFont.h" />
+    <ClInclude Include="extern\glh\include\glh\utils.h" />
+    <ClInclude Include="extern\glh\include\KHR\khrplatform.h" />
     <ClInclude Include="include\dearimgui\imconfig.h" />
     <ClInclude Include="include\dearimgui\imgui.h" />
     <ClInclude Include="include\dearimgui\imgui_impl_glfw.h" />

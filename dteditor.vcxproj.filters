@@ -25,6 +25,30 @@
     <Filter Include="Header Files\cpputils">
       <UniqueIdentifier>{d6e213b9-cd36-4797-9dc7-64f6ac0309a6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\glh">
+      <UniqueIdentifier>{cd0f6cce-3971-4c93-bd80-bcf6fa62ef88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\glad">
+      <UniqueIdentifier>{693c1537-f9bf-4912-90cd-9422903b32ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\KHR">
+      <UniqueIdentifier>{d665102f-c176-4153-a217-aed19465c4d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\glh\classes">
+      <UniqueIdentifier>{df708647-9f3d-47a8-b829-53ce1efaf360}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\glh\RFont">
+      <UniqueIdentifier>{8bd49471-e7e9-4b3d-84cf-1abd50f80163}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\glad">
+      <UniqueIdentifier>{32c08e15-7ef3-493d-b0bf-42f999a83515}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\glh">
+      <UniqueIdentifier>{d3fa42d3-163a-49ba-b61c-d90512c86ce6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\glh\classes">
+      <UniqueIdentifier>{22ac89b3-0042-4878-ac3b-1fef0218bda9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -53,6 +77,30 @@
     </ClCompile>
     <ClCompile Include="src\dearimgui\imgui.cpp">
       <Filter>Source Files\dearimgui</Filter>
+    </ClCompile>
+    <ClCompile Include="extern\glh\src\glad\gl.c">
+      <Filter>Source Files\glad</Filter>
+    </ClCompile>
+    <ClCompile Include="extern\glh\src\glad\wgl.c">
+      <Filter>Source Files\glad</Filter>
+    </ClCompile>
+    <ClCompile Include="extern\glh\src\glh\font.cpp">
+      <Filter>Source Files\glh</Filter>
+    </ClCompile>
+    <ClCompile Include="extern\glh\src\glh\classes\D3DInteropTexture2D.cpp">
+      <Filter>Source Files\glh\classes</Filter>
+    </ClCompile>
+    <ClCompile Include="extern\glh\src\glh\classes\Framebuffer.cpp">
+      <Filter>Source Files\glh\classes</Filter>
+    </ClCompile>
+    <ClCompile Include="extern\glh\src\glh\classes\Program.cpp">
+      <Filter>Source Files\glh\classes</Filter>
+    </ClCompile>
+    <ClCompile Include="extern\glh\src\glh\classes\Shader.cpp">
+      <Filter>Source Files\glh\classes</Filter>
+    </ClCompile>
+    <ClCompile Include="extern\glh\src\glh\classes\Texture2D.cpp">
+      <Filter>Source Files\glh\classes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -100,6 +148,60 @@
     </ClInclude>
     <ClInclude Include="include\icon.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="extern\glh\include\glad\gl.h">
+      <Filter>Header Files\glad</Filter>
+    </ClInclude>
+    <ClInclude Include="extern\glh\include\glad\wgl.h">
+      <Filter>Header Files\glad</Filter>
+    </ClInclude>
+    <ClInclude Include="extern\glh\include\KHR\khrplatform.h">
+      <Filter>Header Files\KHR</Filter>
+    </ClInclude>
+    <ClInclude Include="extern\glh\include\glh\font.h">
+      <Filter>Header Files\glh</Filter>
+    </ClInclude>
+    <ClInclude Include="extern\glh\include\glh\functionWrappers.h">
+      <Filter>Header Files\glh</Filter>
+    </ClInclude>
+    <ClInclude Include="extern\glh\include\glh\glh.h">
+      <Filter>Header Files\glh</Filter>
+    </ClInclude>
+    <ClInclude Include="extern\glh\include\glh\macros.h">
+      <Filter>Header Files\glh</Filter>
+    </ClInclude>
+    <ClInclude Include="extern\glh\include\glh\openglapi.h">
+      <Filter>Header Files\glh</Filter>
+    </ClInclude>
+    <ClInclude Include="extern\glh\include\glh\utils.h">
+      <Filter>Header Files\glh</Filter>
+    </ClInclude>
+    <ClInclude Include="extern\glh\include\glh\RFont\DejaVuSans.h">
+      <Filter>Header Files\glh\RFont</Filter>
+    </ClInclude>
+    <ClInclude Include="extern\glh\include\glh\RFont\DroidSansJapanese.h">
+      <Filter>Header Files\glh\RFont</Filter>
+    </ClInclude>
+    <ClInclude Include="extern\glh\include\glh\RFont\RFont.h">
+      <Filter>Header Files\glh\RFont</Filter>
+    </ClInclude>
+    <ClInclude Include="extern\glh\include\glh\classes\D3DInteropTexture2D.h">
+      <Filter>Header Files\glh\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="extern\glh\include\glh\classes\Framebuffer.h">
+      <Filter>Header Files\glh\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="extern\glh\include\glh\classes\Program.h">
+      <Filter>Header Files\glh\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="extern\glh\include\glh\classes\Shader.h">
+      <Filter>Header Files\glh\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="extern\glh\include\glh\classes\SharedLibraryLoader.h">
+      <Filter>Header Files\glh\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="extern\glh\include\glh\classes\Texture2D.h">
+      <Filter>Header Files\glh\classes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
