@@ -119,10 +119,11 @@ const std::vector<std::string> getDtedFileDataLines(const DtedFile& file) {
 }
 
 bool loadNewFile = false;
-std::string newFilePath = "";
-static void glfw_drop_callback(GLFWwindow* window, int count, const char** paths)
+std::vector<std::string> newTextData;
+static void dropCallback(GLFWwindow* window, int count, const char** paths)
 {
-    newFilePath = paths[0];
+    DtedFile newFile(paths[0]);
+    newTextData = getDtedFileDataLines(newFile);
     loadNewFile = true;
 }
 
@@ -132,14 +133,14 @@ static void render(GLFWwindow* window)
 
     // Text data
     DtedFile dtedFile(file);
-    std::vector<std::string> text_data = getDtedFileDataLines(dtedFile);
+    std::vector<std::string> textData = getDtedFileDataLines(dtedFile);
 
     ImGuiIO& io = ImGui::GetIO();
 
     while (!glfwWindowShouldClose(window)) {
         if (loadNewFile) {
-            DtedFile newFile(newFilePath);
-            text_data = getDtedFileDataLines(newFile);
+            textData = std::move(newTextData);
+            loadNewFile = false;
         }
 
         // Start the Dear ImGui frame
@@ -152,7 +153,7 @@ static void render(GLFWwindow* window)
         ImGui::SetNextWindowSize(io.DisplaySize);
         ImGui::Begin("Fullscreen Text Display", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 
-        for (const auto& line : text_data) {
+        for (const auto& line : textData) {
             ImGui::Text("%s", line.c_str());
         }
 
@@ -190,7 +191,7 @@ int main()
     appConfig.customDrawFunc = render;
     appConfig.customKeyCallback = nullptr;
     appConfig.customErrorCallback = nullptr;
-    appConfig.customDropCallback = glfw_drop_callback;
+    appConfig.customDropCallback = dropCallback;
 
     try {
         OpenGLApplication app(appConfig);
