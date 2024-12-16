@@ -105,7 +105,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)include\dearimgui;$(SolutionDir)extern\cpputils\include;$(SolutionDir)extern\glh\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)extern\cpputils\include;$(SolutionDir)extern\glh\include;$(SolutionDir)extern\glh\include\dearimgui</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -122,7 +122,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)include\dearimgui;$(SolutionDir)extern\cpputils\include;$(SolutionDir)extern\glh\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)extern\cpputils\include;$(SolutionDir)extern\glh\include;$(SolutionDir)extern\glh\include\dearimgui</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -135,6 +135,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="extern\glh\src\dearimgui\imgui.cpp" />
+    <ClCompile Include="extern\glh\src\dearimgui\imgui_demo.cpp" />
+    <ClCompile Include="extern\glh\src\dearimgui\imgui_draw.cpp" />
+    <ClCompile Include="extern\glh\src\dearimgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="extern\glh\src\dearimgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="extern\glh\src\dearimgui\imgui_tables.cpp" />
+    <ClCompile Include="extern\glh\src\dearimgui\imgui_widgets.cpp" />
     <ClCompile Include="extern\glh\src\glad\gl.c" />
     <ClCompile Include="extern\glh\src\glad\wgl.c" />
     <ClCompile Include="extern\glh\src\glh\classes\D3DInteropTexture2D.cpp" />
@@ -144,18 +151,20 @@
     <ClCompile Include="extern\glh\src\glh\classes\Shader.cpp" />
     <ClCompile Include="extern\glh\src\glh\classes\Texture2D.cpp" />
     <ClCompile Include="extern\glh\src\glh\font.cpp" />
-    <ClCompile Include="src\dearimgui\imgui.cpp" />
-    <ClCompile Include="src\dearimgui\imgui_demo.cpp" />
-    <ClCompile Include="src\dearimgui\imgui_draw.cpp" />
-    <ClCompile Include="src\dearimgui\imgui_impl_glfw.cpp" />
-    <ClCompile Include="src\dearimgui\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="src\dearimgui\imgui_tables.cpp" />
-    <ClCompile Include="src\dearimgui\imgui_widgets.cpp" />
     <ClCompile Include="src\DtedFile.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="extern\cpputils\include\cpputils\windows\dwm.h" />
+    <ClInclude Include="extern\glh\include\dearimgui\imconfig.h" />
+    <ClInclude Include="extern\glh\include\dearimgui\imgui.h" />
+    <ClInclude Include="extern\glh\include\dearimgui\imgui_impl_glfw.h" />
+    <ClInclude Include="extern\glh\include\dearimgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="extern\glh\include\dearimgui\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="extern\glh\include\dearimgui\imgui_internal.h" />
+    <ClInclude Include="extern\glh\include\dearimgui\imstb_rectpack.h" />
+    <ClInclude Include="extern\glh\include\dearimgui\imstb_textedit.h" />
+    <ClInclude Include="extern\glh\include\dearimgui\imstb_truetype.h" />
     <ClInclude Include="extern\glh\include\glad\gl.h" />
     <ClInclude Include="extern\glh\include\glad\wgl.h" />
     <ClInclude Include="extern\glh\include\glh\classes\D3DInteropTexture2D.h" />
@@ -175,15 +184,6 @@
     <ClInclude Include="extern\glh\include\glh\RFont\RFont.h" />
     <ClInclude Include="extern\glh\include\glh\utils.h" />
     <ClInclude Include="extern\glh\include\KHR\khrplatform.h" />
-    <ClInclude Include="include\dearimgui\imconfig.h" />
-    <ClInclude Include="include\dearimgui\imgui.h" />
-    <ClInclude Include="include\dearimgui\imgui_impl_glfw.h" />
-    <ClInclude Include="include\dearimgui\imgui_impl_opengl3.h" />
-    <ClInclude Include="include\dearimgui\imgui_impl_opengl3_loader.h" />
-    <ClInclude Include="include\dearimgui\imgui_internal.h" />
-    <ClInclude Include="include\dearimgui\imstb_rectpack.h" />
-    <ClInclude Include="include\dearimgui\imstb_textedit.h" />
-    <ClInclude Include="include\dearimgui\imstb_truetype.h" />
     <ClInclude Include="include\dtedFields.h" />
     <ClInclude Include="include\DtedFile.h" />
     <ClInclude Include="include\GLFW\glfw3.h" />

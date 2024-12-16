@@ -4,22 +4,24 @@
 
 #include "icon.h"
 
-//#include "glh/classes/OpenGLApplication.h"
-
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-#include "GLFW/glfw3.h"
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include "GLFW/glfw3native.h"
+#include "glh/classes/OpenGLApplication.h"
 
 #include <iostream>
 #include <vector>
 
-#include <ole2.h>
-#include <windows.h>
+//const char* iconPath = "dteditor.ico";
+//// Load the .ico file as an HICON
+//HICON hIcon = (HICON)LoadImageA(
+//    NULL,              // No instance handle required for a file
+//    iconPath,          // Path to the .ico file
+//    IMAGE_ICON,        // Specify that we're loading an icon
+//    0, 0,              // Default size; let Windows scale it
+//    LR_LOADFROMFILE |  // Load from file
+//    LR_DEFAULTSIZE     // Use default size if not specified
+//);
+//SendMessage(hWnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+//SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
 
-// My stuff
 const std::string file = "data/n39_w084_1arc_v3.dt2";
 template <size_t S>
 std::string bytesToString(const std::array<std::byte, S>& bytes) {
@@ -116,11 +118,6 @@ const std::vector<std::string> getDtedFileDataLines(const DtedFile& file) {
     return lines;
 }
 
-static void glfw_error_callback(int error, const char* description)
-{
-    fprintf(stderr, "GLFW Error %d: %s\n", error, description);
-}
-
 bool loadNewFile = false;
 std::string newFilePath = "";
 static void glfw_drop_callback(GLFWwindow* window, int count, const char** paths)
@@ -129,63 +126,17 @@ static void glfw_drop_callback(GLFWwindow* window, int count, const char** paths
     loadNewFile = true;
 }
 
-int main()
+static void render(GLFWwindow* window) 
 {
-    const char* iconPath = "dteditor.ico";
-
-    // Load the .ico file as an HICON
-    HICON hIcon = (HICON)LoadImageA(
-        NULL,              // No instance handle required for a file
-        iconPath,          // Path to the .ico file
-        IMAGE_ICON,        // Specify that we're loading an icon
-        0, 0,              // Default size; let Windows scale it
-        LR_LOADFROMFILE |  // Load from file
-        LR_DEFAULTSIZE     // Use default size if not specified
-    );
-
-    if (!glfwInit()) {
-        return EXIT_FAILURE;
-    }
-
-    const char* glsl_version = "#version 460";
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-
-    GLFWwindow* window = glfwCreateWindow(600, 1000, "Dteditor", nullptr, nullptr);
-    if (window == nullptr) {
-        return EXIT_FAILURE;
-    }
     glfwMakeContextCurrent(window);
-    glfwSwapInterval(1);
-
-    glfwSetErrorCallback(glfw_error_callback);
-    glfwSetDropCallback(window, glfw_drop_callback);
-
-    HWND hWnd = glfwGetWin32Window(window);
-    setWindowDarkMode(hWnd, true);
-    SendMessage(hWnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
-    SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
-
-    // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-
-    // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init(glsl_version);
 
     // Text data
     DtedFile dtedFile(file);
     std::vector<std::string> text_data = getDtedFileDataLines(dtedFile);
 
-    while (!glfwWindowShouldClose(window)) {
-        glfwPollEvents();
+    ImGuiIO& io = ImGui::GetIO();
 
+    while (!glfwWindowShouldClose(window)) {
         if (loadNewFile) {
             DtedFile newFile(newFilePath);
             text_data = getDtedFileDataLines(newFile);
@@ -218,14 +169,35 @@ int main()
 
         glfwSwapBuffers(window);
     }
+}
 
-    // Cleanup
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
+int main()
+{
+    OpenGLApplication::ApplicationConfig appConfig = {};
+    appConfig.windowName = "Dteditor";
+    appConfig.windowInitWidth = 600;
+    appConfig.windowInitHeight = 1000;
+    appConfig.windowPosX = 200;
+    appConfig.windowPosY = 200;
+    appConfig.windowBorderless = false;
+    appConfig.windowResizeEnable = true;
+    appConfig.windowDarkmode = true;
+    appConfig.windowRounded = true;
+    appConfig.vsyncEnable = true;
+    appConfig.glVersionMajor = 4;
+    appConfig.glVersionMinor = 6;
+    appConfig.glslVersionString; // leave default
+    appConfig.customDrawFunc = render;
+    appConfig.customKeyCallback = nullptr;
+    appConfig.customErrorCallback = nullptr;
+    appConfig.customDropCallback = glfw_drop_callback;
 
-    glfwDestroyWindow(window);
-    glfwTerminate();
+    try {
+        OpenGLApplication app(appConfig);
+    }
+    catch (const std::exception& e) {
+        std::cout << e.what() << std::endl;
+    }
 
     return 0;
 }
