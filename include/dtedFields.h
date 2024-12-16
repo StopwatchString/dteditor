@@ -21,6 +21,11 @@ struct UserHeaderLabel {
     std::array<std::byte, 4>  numberOfLatitudePoints;   // 52-55 | Number of latitude points
     std::array<std::byte, 1>  multipleAccuracy;         // 56    | Multiple accuracy indicator
     std::array<std::byte, 24> reserved;                 // 57-80 | Reserved for future use
+
+    bool valid() const {
+        static const std::array<std::byte, 3> validRecognitionSentinel = { std::byte('U'), std::byte('H'), std::byte('L') };
+        return recognitionSentinel == validRecognitionSentinel;
+    }
 };
 const std::streampos USER_HEADER_LABEL_OFFSET = 0;
 const std::streamsize USER_HEADER_LABEL_SIZE = sizeof(UserHeaderLabel);
@@ -69,6 +74,11 @@ struct DataSetIdentification {
     std::array<std::byte, 101> coveragePercent;             // 292-392 | Coverage percentage
     std::array<std::byte, 100> geoidUndulation;             // 393-492 | Geoid undulation
     std::array<std::byte, 156> reserved5;                   // 493-648 | Reserved for future use
+
+    bool valid() const {
+        static const std::array<std::byte, 3> validRecognitionSentinel = { std::byte('D'), std::byte('S'), std::byte('I') };
+        return recognitionSentinel == validRecognitionSentinel;
+    }
 };
 const std::streampos DATA_SET_IDENTIFICATION_OFFSET = USER_HEADER_LABEL_OFFSET + USER_HEADER_LABEL_SIZE;
 const std::streamsize DATA_SET_IDENTIFICATION_SIZE = sizeof(DataSetIdentification);
@@ -87,15 +97,24 @@ struct AccuracyDescriptionRecord {
     std::array<std::byte, 2556> accuracySubregions;    // 58-2613   | Accuracy of subregions
     std::array<std::byte, 18>   reservedDMA2;          // 2614-2631 | Reserved for DMA
     std::array<std::byte, 69>   reserved3;             // 2632-2700 | Reserved
+
+    bool valid() const {
+        static const std::array<std::byte, 3> validRecognitionSentinel = { std::byte('A'), std::byte('C'), std::byte('C') };
+        return recognitionSentinel == validRecognitionSentinel;
+    }
 };
 const std::streampos ACCURACY_DESCRIPTION_RECORD_OFFSET = DATA_SET_IDENTIFICATION_OFFSET + DATA_SET_IDENTIFICATION_SIZE;
-const std::streamsize ACCURACTY_DESCRIPTION_RECORD_SIZE = sizeof(UserHeaderLabel);
+const std::streamsize ACCURACTY_DESCRIPTION_RECORD_SIZE = sizeof(AccuracyDescriptionRecord);
 
 // DtedHeader
 struct DtedHeader {
     UserHeaderLabel uhl{};
     DataSetIdentification dsi{};
     AccuracyDescriptionRecord acc{};
+
+    bool valid() const {
+        return uhl.valid() && dsi.valid() && acc.valid();
+    }
 };
 const std::streampos DTED_HEADER_OFFSET = 0;
 const std::streamsize DTED_HEADER_SIZE = sizeof(DtedHeader);

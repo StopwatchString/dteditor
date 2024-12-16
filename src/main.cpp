@@ -1,9 +1,7 @@
 #include "DtedFile.h"
-
-#include "cpputils/windows/dwm.h"
-
 #include "icon.h"
 
+#include "cpputils/windows/dwm.h"
 #include "glh/classes/OpenGLApplication.h"
 
 #include <iostream>
@@ -123,7 +121,12 @@ std::vector<std::string> newTextData;
 static void dropCallback(GLFWwindow* window, int count, const char** paths)
 {
     DtedFile newFile(paths[0]);
-    newTextData = getDtedFileDataLines(newFile);
+    if (newFile.valid()) {
+        newTextData = getDtedFileDataLines(newFile);
+    }
+    else {
+        newTextData = { "Not a valid Dted File!" };
+    }
     loadNewFile = true;
 }
 
@@ -148,10 +151,10 @@ static void render(GLFWwindow* window)
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // Create a fullscreen window
+        // Create window which fills viewport
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(io.DisplaySize);
-        ImGui::Begin("Fullscreen Text Display", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+        ImGui::Begin("Main Window", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 
         for (const auto& line : textData) {
             ImGui::Text("%s", line.c_str());
