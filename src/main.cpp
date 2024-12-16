@@ -125,7 +125,7 @@ static void dropCallback(GLFWwindow* window, int count, const char** paths)
         newTextData = getDtedFileDataLines(newFile);
     }
     else {
-        newTextData = { "Not a valid Dted File!" };
+        newTextData = { newFile.filename(), "Not a valid Dted File!"};
     }
     loadNewFile = true;
 }

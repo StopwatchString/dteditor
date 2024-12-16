@@ -15,6 +15,7 @@ public:
     const AccuracyDescriptionRecord& acc() const { return m_Header.acc; }
 
     bool valid() { return m_Header.valid(); }
+    std::string filename() { return m_FileName; }
 
 private:
     const std::string m_FileName;
