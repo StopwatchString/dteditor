@@ -106,18 +106,18 @@ struct AccuracyDescriptionRecord {
 const std::streampos ACCURACY_DESCRIPTION_RECORD_OFFSET = DATA_SET_IDENTIFICATION_OFFSET + DATA_SET_IDENTIFICATION_SIZE;
 const std::streamsize ACCURACTY_DESCRIPTION_RECORD_SIZE = sizeof(AccuracyDescriptionRecord);
 
-// DtedHeader
-struct DtedHeader {
-    UserHeaderLabel uhl{};
-    DataSetIdentification dsi{};
-    AccuracyDescriptionRecord acc{};
+// Data Record
+struct DataRecord {
+    std::array<std::byte, 1> recognitionSentinel;
+    std::array<std::byte, 3> dataBlockCount;
+    std::array<std::byte, 2> longitudeCount;
+    std::array<std::byte, 2> latitudeCount;
 
     bool valid() const {
-        return uhl.valid() && dsi.valid() && acc.valid();
+        return recognitionSentinel[0] == std::byte(170);
     }
 };
-const std::streampos DTED_HEADER_OFFSET = 0;
-const std::streamsize DTED_HEADER_SIZE = sizeof(DtedHeader);
+
 
 #pragma pack(pop)
 #endif
