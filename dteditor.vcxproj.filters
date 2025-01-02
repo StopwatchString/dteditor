@@ -49,12 +49,15 @@
     <Filter Include="Header Files\dearimgui">
       <UniqueIdentifier>{85c8d979-9bf2-4807-a104-22e56c069922}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\dted">
+      <UniqueIdentifier>{15b8b8c1-bd58-4cae-97aa-d22c823b0ffb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\dted">
+      <UniqueIdentifier>{93c81f59-449c-46f4-bf05-2707d154d6a7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\DtedFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="extern\glh\src\glad\gl.c">
@@ -105,14 +108,14 @@
     <ClCompile Include="extern\glh\src\dearimgui\imgui_widgets.cpp">
       <Filter>Source Files\dearimgui</Filter>
     </ClCompile>
+    <ClCompile Include="src\dted\DtedFile.cpp">
+      <Filter>Source Files\dted</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dted\dtedParsedStructs.cpp">
+      <Filter>Source Files\dted</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\DtedFile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\dtedFields.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\GLFW\glfw3.h">
       <Filter>Header Files\GLFW</Filter>
     </ClInclude>
@@ -208,6 +211,15 @@
     </ClInclude>
     <ClInclude Include="extern\glh\include\dearimgui\imstb_truetype.h">
       <Filter>Header Files\dearimgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dted\DtedFile.h">
+      <Filter>Header Files\dted</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dted\dtedFileDefinitions.h">
+      <Filter>Header Files\dted</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dted\dtedParsedStructs.h">
+      <Filter>Header Files\dted</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

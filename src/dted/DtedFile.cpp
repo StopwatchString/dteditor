@@ -1,7 +1,9 @@
-#include "DtedFile.h"
+#include "dted/DtedFile.h"
 
 #include <iostream>
 #include <fstream>
+
+namespace dted {
 
 //-----------------------------------------------
 // Constructor
@@ -29,6 +31,8 @@ DtedFile::DtedFile(const std::string& filename)
     if (!file.read(reinterpret_cast<char*>(m_Data.get()), m_DataSize)) {
         std::cerr << "ERROR Failed to pull entire file into heap block." << std::endl;
     }
+
+
 
     file.close();
 }
@@ -72,11 +76,13 @@ bool DtedFile::valid() const
     // If we don't have data, then we aren't valid
     if (m_Data.get() == nullptr) return false;
     // If we don't have enough data to have all 3 headers, then we aren't valid
-    if (m_DataSize < USER_HEADER_LABEL_SIZE + DATA_SET_IDENTIFICATION_SIZE + ACCURACTY_DESCRIPTION_RECORD_SIZE) return false;
+    if (m_DataSize < USER_HEADER_LABEL_BLOB_SIZE + DATA_SET_IDENTIFICATION_BLOB_SIZE + ACCURACTY_DESCRIPTION_RECORD_BLOB_SIZE) return false;
 
-    UserHeaderLabel uhl = *(reinterpret_cast<UserHeaderLabel*>(m_Data.get() + USER_HEADER_LABEL_OFFSET));
-    DataSetIdentification dsi = *(reinterpret_cast<DataSetIdentification*>(m_Data.get() + DATA_SET_IDENTIFICATION_OFFSET));
-    AccuracyDescriptionRecord acc = *(reinterpret_cast<AccuracyDescriptionRecord*>(m_Data.get() + ACCURACY_DESCRIPTION_RECORD_OFFSET));
+    UserHeaderLabelBlob uhl = *(reinterpret_cast<UserHeaderLabelBlob*>(m_Data.get() + USER_HEADER_LABEL_BLOB_OFFSET));
+    DataSetIdentificationBlob dsi = *(reinterpret_cast<DataSetIdentificationBlob*>(m_Data.get() + DATA_SET_IDENTIFICATION_BLOB_OFFSET));
+    AccuracyDescriptionRecordBlob acc = *(reinterpret_cast<AccuracyDescriptionRecordBlob*>(m_Data.get() + ACCURACY_DESCRIPTION_RECORD_BLOB_OFFSET));
 
     return uhl.valid() && dsi.valid() && acc.valid();
 }
+
+} // End dted namespace

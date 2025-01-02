@@ -1,5 +1,8 @@
-#include "DtedFile.h"
+#include "dted/DtedFile.h"
+using dted::DtedFile;
 #include "icon.h"
+
+#include "dted/dtedParsedStructs.h"
 
 #include "cpputils/windows/dwm.h"
 #include "glh/classes/OpenGLApplication.h"
@@ -7,32 +10,19 @@
 #include <iostream>
 #include <vector>
 
-//const char* iconPath = "dteditor.ico";
-//// Load the .ico file as an HICON
-//HICON hIcon = (HICON)LoadImageA(
-//    NULL,              // No instance handle required for a file
-//    iconPath,          // Path to the .ico file
-//    IMAGE_ICON,        // Specify that we're loading an icon
-//    0, 0,              // Default size; let Windows scale it
-//    LR_LOADFROMFILE |  // Load from file
-//    LR_DEFAULTSIZE     // Use default size if not specified
-//);
-//SendMessage(hWnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
-//SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
-
 const std::string file = "data/n39_w084_1arc_v3.dt2";
 template <size_t S>
 std::string bytesToString(const std::array<std::byte, S>& bytes) {
-    std::string s;
-    s.reserve(S);
-    for (const std::byte& b : bytes) {
-        s.push_back(static_cast<char>(b));
-    }
-    return s;
+    return std::string(reinterpret_cast<const char*>(bytes.data()), bytes.size());
 }
 
 const std::vector<std::string> getDtedFileDataLines(const DtedFile& file) {
     std::vector<std::string> lines;
+
+    dted::UserHeaderLabel uhl(file.uhl());
+
+    lines.push_back(std::to_string(uhl.longitudeOfOrigin));
+    lines.push_back(std::to_string(uhl.latitudeOfOrigin));
 
     // User Header Label
     lines.push_back("----User Header Label----");
@@ -40,8 +30,8 @@ const std::vector<std::string> getDtedFileDataLines(const DtedFile& file) {
     lines.push_back("fixedStandard: " + bytesToString(file.uhl().fixedStandard));
     lines.push_back("longitudeOfOrigin: " + bytesToString(file.uhl().longitudeOfOrigin));
     lines.push_back("latitudeOfOrigin: " + bytesToString(file.uhl().latitudeOfOrigin));
-    lines.push_back("longitudeInterval: " + bytesToString(file.uhl().longitudeInterval));
-    lines.push_back("latitudeInterval: " + bytesToString(file.uhl().latitudeInterval));
+    lines.push_back("longitudeInterval: " + bytesToString(file.uhl().longitudeIntervalArcSeconds));
+    lines.push_back("latitudeInterval: " + bytesToString(file.uhl().latitudeIntervalArcSeconds));
     lines.push_back("absoluteVerticalAccuracy: " + bytesToString(file.uhl().absoluteVerticalAccuracy));
     lines.push_back("securityCode: " + bytesToString(file.uhl().securityCode));
     lines.push_back("uniqueReference: " + bytesToString(file.uhl().uniqueReference));
@@ -87,8 +77,8 @@ const std::vector<std::string> getDtedFileDataLines(const DtedFile& file) {
     lines.push_back("latSECorner: " + bytesToString(file.dsi().latSECorner));
     lines.push_back("lonSECorner: " + bytesToString(file.dsi().lonSECorner));
     lines.push_back("orientationAngle: " + bytesToString(file.dsi().orientationAngle));
-    lines.push_back("latitudeInterval: " + bytesToString(file.dsi().latitudeInterval));
-    lines.push_back("longitudeInterval: " + bytesToString(file.dsi().longitudeInterval));
+    lines.push_back("latitudeInterval: " + bytesToString(file.dsi().latitudeIntervalArcSeconds));
+    lines.push_back("longitudeInterval: " + bytesToString(file.dsi().longitudeIntervalArcSeconds));
     lines.push_back("numberLatitudeLines: " + bytesToString(file.dsi().numberLatitudeLines));
     lines.push_back("numberLongitudeLines: " + bytesToString(file.dsi().numberLongitudeLines));
     lines.push_back("partialCellIndicator: " + bytesToString(file.dsi().partialCellIndicator));

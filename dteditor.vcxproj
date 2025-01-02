@@ -151,7 +151,8 @@
     <ClCompile Include="extern\glh\src\glh\classes\Shader.cpp" />
     <ClCompile Include="extern\glh\src\glh\classes\Texture2D.cpp" />
     <ClCompile Include="extern\glh\src\glh\font.cpp" />
-    <ClCompile Include="src\DtedFile.cpp" />
+    <ClCompile Include="src\dted\DtedFile.cpp" />
+    <ClCompile Include="src\dted\dtedParsedStructs.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -184,8 +185,9 @@
     <ClInclude Include="extern\glh\include\glh\RFont\RFont.h" />
     <ClInclude Include="extern\glh\include\glh\utils.h" />
     <ClInclude Include="extern\glh\include\KHR\khrplatform.h" />
-    <ClInclude Include="include\dtedFields.h" />
-    <ClInclude Include="include\DtedFile.h" />
+    <ClInclude Include="include\dted\DtedFile.h" />
+    <ClInclude Include="include\dted\dtedFileDefinitions.h" />
+    <ClInclude Include="include\dted\dtedParsedStructs.h" />
     <ClInclude Include="include\GLFW\glfw3.h" />
     <ClInclude Include="include\GLFW\glfw3native.h" />
     <ClInclude Include="include\icon.h" />

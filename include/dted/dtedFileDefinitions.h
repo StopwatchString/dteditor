@@ -1,37 +1,41 @@
-#ifndef DTED_FIELDS_H
-#define DTED_FIELDS_H
+#ifndef DTED_FILE_DEFINITIONS_H
+#define DTED_FILE_DEFINITIONS_H
 #pragma pack(push, 1)
 
 #include <array>
 #include <cstddef>
 #include <ios>
 
+namespace dted {
+
 // User Header Label
-struct UserHeaderLabel {
-    std::array<std::byte, 3>  recognitionSentinel;      // 1-3   | Recognition sentinel
-    std::array<std::byte, 1>  fixedStandard;            // 4     | Fixed by standard
-    std::array<std::byte, 8>  longitudeOfOrigin;        // 5-12  | Longitude of origin
-    std::array<std::byte, 8>  latitudeOfOrigin;         // 13-20 | Latitude of origin
-    std::array<std::byte, 4>  longitudeInterval;        // 21-24 | Longitude data interval in seconds
-    std::array<std::byte, 4>  latitudeInterval;         // 25-28 | Latitude data interval in seconds
-    std::array<std::byte, 4>  absoluteVerticalAccuracy; // 29-32 | Absolute vertical accuracy
-    std::array<std::byte, 3>  securityCode;             // 33-35 | Unclassified security code
-    std::array<std::byte, 12> uniqueReference;          // 36-47 | Unique reference number
-    std::array<std::byte, 4>  numberOfLongitudeLines;   // 48-51 | Number of longitude lines
-    std::array<std::byte, 4>  numberOfLatitudePoints;   // 52-55 | Number of latitude points
-    std::array<std::byte, 1>  multipleAccuracy;         // 56    | Multiple accuracy indicator
-    std::array<std::byte, 24> reserved;                 // 57-80 | Reserved for future use
+struct UserHeaderLabelBlob
+{
+    std::array<std::byte, 3>  recognitionSentinel;         // 1-3   | Recognition sentinel
+    std::array<std::byte, 1>  fixedStandard;               // 4     | Fixed by standard
+    std::array<std::byte, 8>  longitudeOfOrigin;           // 5-12  | Longitude of origin
+    std::array<std::byte, 8>  latitudeOfOrigin;            // 13-20 | Latitude of origin
+    std::array<std::byte, 4>  longitudeIntervalArcSeconds; // 21-24 | Longitude data interval in arc seconds
+    std::array<std::byte, 4>  latitudeIntervalArcSeconds;  // 25-28 | Latitude data interval in arc seconds
+    std::array<std::byte, 4>  absoluteVerticalAccuracy;    // 29-32 | Absolute vertical accuracy
+    std::array<std::byte, 3>  securityCode;                // 33-35 | Unclassified security code
+    std::array<std::byte, 12> uniqueReference;             // 36-47 | Unique reference number
+    std::array<std::byte, 4>  numberOfLongitudeLines;      // 48-51 | Number of longitude lines
+    std::array<std::byte, 4>  numberOfLatitudePoints;      // 52-55 | Number of latitude points
+    std::array<std::byte, 1>  multipleAccuracy;            // 56    | Multiple accuracy indicator
+    std::array<std::byte, 24> reserved;                    // 57-80 | Reserved for future use
 
     bool valid() const {
         static const std::array<std::byte, 3> validRecognitionSentinel = { std::byte('U'), std::byte('H'), std::byte('L') };
         return recognitionSentinel == validRecognitionSentinel;
     }
 };
-const std::streampos USER_HEADER_LABEL_OFFSET = 0;
-const std::streamsize USER_HEADER_LABEL_SIZE = sizeof(UserHeaderLabel);
+const std::streampos USER_HEADER_LABEL_BLOB_OFFSET = 0;
+const std::streamsize USER_HEADER_LABEL_BLOB_SIZE = sizeof(UserHeaderLabelBlob);
 
 // Data Set Identification
-struct DataSetIdentification {
+struct DataSetIdentificationBlob
+{
     std::array<std::byte, 3>   recognitionSentinel;         // 1-3     | Recognition sentinel
     std::array<std::byte, 1>   securityCode;                // 4       | Unclassified security code
     std::array<std::byte, 2>   securityControlMarkings;     // 5-6     | Security control markings
@@ -66,8 +70,8 @@ struct DataSetIdentification {
     std::array<std::byte, 7>   latSECorner;                 // 250-256 | Latitude of SE corner
     std::array<std::byte, 8>   lonSECorner;                 // 257-264 | Longitude of SE corner
     std::array<std::byte, 9>   orientationAngle;            // 265-273 | Clockwise orientation angle
-    std::array<std::byte, 4>   latitudeInterval;            // 274-277 | Latitude interval
-    std::array<std::byte, 4>   longitudeInterval;           // 278-281 | Longitude interval
+    std::array<std::byte, 4>   latitudeIntervalArcSeconds;  // 274-277 | Latitude interval
+    std::array<std::byte, 4>   longitudeIntervalArcSeconds; // 278-281 | Longitude interval
     std::array<std::byte, 4>   numberLatitudeLines;         // 282-285 | Number of latitude lines
     std::array<std::byte, 4>   numberLongitudeLines;        // 286-289 | Number of longitude lines
     std::array<std::byte, 2>   partialCellIndicator;        // 290-291 | Partial cell indicator
@@ -80,11 +84,12 @@ struct DataSetIdentification {
         return recognitionSentinel == validRecognitionSentinel;
     }
 };
-const std::streampos DATA_SET_IDENTIFICATION_OFFSET = USER_HEADER_LABEL_OFFSET + USER_HEADER_LABEL_SIZE;
-const std::streamsize DATA_SET_IDENTIFICATION_SIZE = sizeof(DataSetIdentification);
+const std::streampos DATA_SET_IDENTIFICATION_BLOB_OFFSET = USER_HEADER_LABEL_BLOB_OFFSET + USER_HEADER_LABEL_BLOB_SIZE;
+const std::streamsize DATA_SET_IDENTIFICATION_BLOB_SIZE = sizeof(DataSetIdentificationBlob);
 
 // Accuracy Description Record
-struct AccuracyDescriptionRecord {
+struct AccuracyDescriptionRecordBlob
+{
     std::array<std::byte, 3>    recognitionSentinel;   // 1-3       | Recognition sentinel
     std::array<std::byte, 4>    absHorizontalAccuracy; // 4-7       | Absolute horizontal accuracy
     std::array<std::byte, 4>    absVerticalAccuracy;   // 8-11      | Absolute vertical accuracy
@@ -103,11 +108,11 @@ struct AccuracyDescriptionRecord {
         return recognitionSentinel == validRecognitionSentinel;
     }
 };
-const std::streampos ACCURACY_DESCRIPTION_RECORD_OFFSET = DATA_SET_IDENTIFICATION_OFFSET + DATA_SET_IDENTIFICATION_SIZE;
-const std::streamsize ACCURACTY_DESCRIPTION_RECORD_SIZE = sizeof(AccuracyDescriptionRecord);
+const std::streampos ACCURACY_DESCRIPTION_RECORD_BLOB_OFFSET = DATA_SET_IDENTIFICATION_BLOB_OFFSET + DATA_SET_IDENTIFICATION_BLOB_SIZE;
+const std::streamsize ACCURACTY_DESCRIPTION_RECORD_BLOB_SIZE = sizeof(AccuracyDescriptionRecordBlob);
 
-// Data Record
-struct DataRecord {
+struct ColummHeaderBlob
+{
     std::array<std::byte, 1> recognitionSentinel;
     std::array<std::byte, 3> dataBlockCount;
     std::array<std::byte, 2> longitudeCount;
@@ -117,7 +122,15 @@ struct DataRecord {
         return recognitionSentinel[0] == std::byte(170);
     }
 };
+const std::streamsize COLUMN_HEADER_BLOB_SIZE = sizeof(ColummHeaderBlob);
 
+struct ColumnFooterBlob
+{
+    std::array<std::byte, 4> checksum;
+};
+const std::streamsize COLUMN_FOOTER_BLOB_SIZE = sizeof(ColumnFooterBlob);
+
+} // End dted namespace
 
 #pragma pack(pop)
 #endif
