@@ -27,7 +27,6 @@ public:
     const AccuracyDescriptionRecordBlob& acc() const { return reinterpret_cast<AccuracyDescriptionRecordBlob&>(m_Data.get()[ACCURACY_DESCRIPTION_RECORD_BLOB_OFFSET]); }
 
     bool isDataLoaded();
-    
 
     bool valid() const;
     std::string filename() const { return m_FileName; }

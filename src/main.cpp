@@ -20,6 +20,7 @@ const std::vector<std::string> getDtedFileDataLines(const DtedFile& file) {
     std::vector<std::string> lines;
 
     dted::UserHeaderLabel uhl(file.uhl());
+    dted::DataSetIdentification dsi(file.dsi());
 
     lines.push_back(std::to_string(uhl.longitudeOfOrigin));
     lines.push_back(std::to_string(uhl.latitudeOfOrigin));
