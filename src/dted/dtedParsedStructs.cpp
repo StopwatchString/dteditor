@@ -264,7 +264,26 @@ DataSetIdentification::DataSetIdentification(const DataSetIdentificationBlob& ds
 //-----------------------------------------------
 AccuracyDescriptionRecord::AccuracyDescriptionRecord(const AccuracyDescriptionRecordBlob& accBlob)
 {
+    //recognitionSentinel
+    stringFromChars(recognitionSentinel, accBlob.recognitionSentinel);
 
+    //absHorizontalAccuracy
+    integralFromChars(absHorizontalAccuracy, accBlob.absHorizontalAccuracy, 0, accBlob.absHorizontalAccuracy.size());
+
+    //absVerticalAccuracy
+    integralFromChars(absVerticalAccuracy, accBlob.absVerticalAccuracy, 0, accBlob.absVerticalAccuracy.size());
+
+    //relHorizontalAccuracy
+    integralFromChars(relHorizontalAccuracy, accBlob.relHorizontalAccuracy, 0, accBlob.relHorizontalAccuracy.size());
+
+    //relVerticalAccuracy
+    integralFromChars(relVerticalAccuracy, accBlob.relVerticalAccuracy, 0, accBlob.relVerticalAccuracy.size());
+
+    //accuracyOutlineFlag
+    integralFromChars(accuracyOutlineFlag, accBlob.accuracyOutlineFlag, 0, accBlob.accuracyOutlineFlag.size());
+
+    //accuracySubregions
+    memcpy(accuracySubregions.data(), accBlob.accuracySubregions.data(), accBlob.accuracySubregions.size());
 }
 
 } // End dted namespace
