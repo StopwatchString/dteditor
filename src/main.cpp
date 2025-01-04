@@ -22,15 +22,12 @@ const std::vector<std::string> getDtedFileDataLines(const DtedFile& file) {
     dted::UserHeaderLabel uhl(file.uhl());
     dted::DataSetIdentification dsi(file.dsi());
 
-    lines.push_back(std::to_string(uhl.longitudeOfOrigin));
-    lines.push_back(std::to_string(uhl.latitudeOfOrigin));
-
     // User Header Label
     lines.push_back("----User Header Label----");
     lines.push_back("recognitionSentinel: " + bytesToString(file.uhl().recognitionSentinel));
     lines.push_back("fixedStandard: " + bytesToString(file.uhl().fixedStandard));
-    lines.push_back("longitudeOfOrigin: " + bytesToString(file.uhl().longitudeOfOrigin));
-    lines.push_back("latitudeOfOrigin: " + bytesToString(file.uhl().latitudeOfOrigin));
+    lines.push_back("longitudeOfOrigin: " + bytesToString(file.uhl().longitudeOfOriginTenthsArcSeconds));
+    lines.push_back("latitudeOfOrigin: " + bytesToString(file.uhl().latitudeOfOriginTenthsArcSeconds));
     lines.push_back("longitudeInterval: " + bytesToString(file.uhl().longitudeIntervalArcSeconds));
     lines.push_back("latitudeInterval: " + bytesToString(file.uhl().latitudeIntervalArcSeconds));
     lines.push_back("absoluteVerticalAccuracy: " + bytesToString(file.uhl().absoluteVerticalAccuracy));
@@ -67,8 +64,8 @@ const std::vector<std::string> getDtedFileDataLines(const DtedFile& file) {
     lines.push_back("digitizingSystem: " + bytesToString(file.dsi().digitizingSystem));
     lines.push_back("compilationDate: " + bytesToString(file.dsi().compilationDate));
     lines.push_back("reserved4: " + bytesToString(file.dsi().reserved4));
-    lines.push_back("latOrigin: " + bytesToString(file.dsi().latOrigin));
-    lines.push_back("lonOrigin: " + bytesToString(file.dsi().lonOrigin));
+    lines.push_back("latOrigin: " + bytesToString(file.dsi().latitudeOfOriginTenthsArcSeconds));
+    lines.push_back("lonOrigin: " + bytesToString(file.dsi().longitudeOfOriginTenthsArcSeconds));
     lines.push_back("latSWCorner: " + bytesToString(file.dsi().latSWCorner));
     lines.push_back("lonSWCorner: " + bytesToString(file.dsi().lonSWCorner));
     lines.push_back("latNWCorner: " + bytesToString(file.dsi().latNWCorner));

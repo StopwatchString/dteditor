@@ -11,19 +11,18 @@ namespace dted {
 
 struct UserHeaderLabel
 {
-    std::string recognitionSentinel;
-    uint8_t fixedByStandard{};
-    double longitudeOfOrigin{};
-    double latitudeOfOrigin{};
-    uint16_t longitudeIntervalArcSeconds{};
-    uint16_t latitudeIntervalArcSeconds{};
-    uint16_t absoluteVerticalAccuracy{};
-    char unclassifiedSecurtiyCode{};
-    std::string uniqueReferenceNumber;
-    uint16_t numberOfLongitudeLines{};
-    uint16_t numberOfLatitudePoints{};
-    bool multipleAccuracy{};
-
+    std::string recognitionSentinel;            // 1-3   | Recognition sentinel
+    uint8_t fixedByStandard{};                  // 4     | Fixed by standard
+    double longitudeOfOriginTenthsArcSeconds{}; // 5-12  | Longitude of origin
+    double latitudeOfOriginTenthsArcSeconds{};  // 13-20 | Latitude of origin
+    uint16_t longitudeIntervalArcSeconds{};     // 21-24 | Longitude data interval in arc seconds       
+    uint16_t latitudeIntervalArcSeconds{};      // 25-28 | Latitude data interval in arc seconds      
+    uint16_t absoluteVerticalAccuracy{};        // 29-32 | Absolute vertical accuracy    
+    char unclassifiedSecurtiyCode{};            // 33-35 | Unclassified security code
+    std::string uniqueReferenceNumber;          // 36-47 | Unique reference number  
+    uint16_t numberOfLongitudeLines{};          // 48-51 | Number of longitude lines  
+    uint16_t numberOfLatitudePoints{};          // 52-55 | Number of latitude points  
+    bool multipleAccuracy{};                    // 56    | Multiple accuracy indicator
     UserHeaderLabel() = delete;
     UserHeaderLabel(const UserHeaderLabelBlob& uhlBlob);
 };
@@ -60,12 +59,12 @@ struct DataSetIdentification
     double latSECornerTenthsArcSeconds;       // 250-256 | Latitude of SE corner
     double lonSECornerTenthsArcSeconds;       // 257-264 | Longitude of SE corner
     double orientationAngle;                  // 265-273 | Clockwise orientation angle
-    double latitudeIntervalArcSeconds;        // 274-277 | Latitude interval
-    double longitudeIntervalArcSeconds;       // 278-281 | Longitude interval
+    uint16_t latitudeIntervalArcSeconds;      // 274-277 | Latitude interval
+    uint16_t longitudeIntervalArcSeconds;     // 278-281 | Longitude interval
     uint16_t numberLatitudeLines;             // 282-285 | Number of latitude lines
     uint16_t numberLongitudeLines;            // 286-289 | Number of longitude lines
     uint8_t partialCellIndicator;             // 290-291 | Partial cell indicator
-    double coveragePercent;                   // 292-392 | Coverage percentage
+    uint32_t coveragePercent;                 // 292-392 | Coverage percentage
     std::string geoidUndulation;              // 393-492 | Geoid undulation
 
     DataSetIdentification() = delete;

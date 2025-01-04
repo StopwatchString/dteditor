@@ -13,8 +13,8 @@ struct UserHeaderLabelBlob
 {
     std::array<std::byte, 3>  recognitionSentinel;         // 1-3   | Recognition sentinel
     std::array<std::byte, 1>  fixedStandard;               // 4     | Fixed by standard
-    std::array<std::byte, 8>  longitudeOfOrigin;           // 5-12  | Longitude of origin
-    std::array<std::byte, 8>  latitudeOfOrigin;            // 13-20 | Latitude of origin
+    std::array<std::byte, 8>  longitudeOfOriginTenthsArcSeconds;           // 5-12  | Longitude of origin
+    std::array<std::byte, 8>  latitudeOfOriginTenthsArcSeconds;            // 13-20 | Latitude of origin
     std::array<std::byte, 4>  longitudeIntervalArcSeconds; // 21-24 | Longitude data interval in arc seconds
     std::array<std::byte, 4>  latitudeIntervalArcSeconds;  // 25-28 | Latitude data interval in arc seconds
     std::array<std::byte, 4>  absoluteVerticalAccuracy;    // 29-32 | Absolute vertical accuracy
@@ -59,8 +59,8 @@ struct DataSetIdentificationBlob
     std::array<std::byte, 10>  digitizingSystem;            // 150-159 | Digitizing/collection system
     std::array<std::byte, 4>   compilationDate;             // 160-163 | Compilation date
     std::array<std::byte, 22>  reserved4;                   // 164-185 | Reserved for future use
-    std::array<std::byte, 9>   latOrigin;                   // 186-194 | Latitude of origin
-    std::array<std::byte, 10>  lonOrigin;                   // 195-204 | Longitude of origin
+    std::array<std::byte, 9>   latitudeOfOriginTenthsArcSeconds;            // 186-194 | Latitude of origin
+    std::array<std::byte, 10>  longitudeOfOriginTenthsArcSeconds;           // 195-204 | Longitude of origin
     std::array<std::byte, 7>   latSWCorner;                 // 205-211 | Latitude of SW corner
     std::array<std::byte, 8>   lonSWCorner;                 // 212-219 | Longitude of SW corner
     std::array<std::byte, 7>   latNWCorner;                 // 220-226 | Latitude of NW corner

@@ -5,230 +5,263 @@
 #include <concepts>
 #include <charconv>
 
+//-----------------------------------------------
+// stringFromChars()
+//-----------------------------------------------
 template <size_t S>
-static void stringFromChars(const std::array<std::byte, S>& bytes, std::string& target)
+static void stringFromChars(std::string& target, const std::array<std::byte, S>& bytes)
 {
     target.resize(bytes.size());
     memcpy(target.data(), bytes.data(), bytes.size());
 }
 
+//-----------------------------------------------
+// integralFromChars()
+//-----------------------------------------------
 template <std::integral T, size_t S>
-static T integralFromChars(const std::array<std::byte, S>& bytes, size_t offset, size_t size, int base = 10)
+static std::from_chars_result integralFromChars(T& target, const std::array<std::byte, S>& bytes, size_t offset, size_t size, int base = 10)
 {
-    T retVal = T();
-    std::from_chars_result result = std::from_chars(
+    return std::from_chars(
         reinterpret_cast<const char*>(&bytes[offset]),
         reinterpret_cast<const char*>(&bytes[offset + size - 1]),
-        retVal,
+        target,
         base
     );
-    return T;
 }
 
+//-----------------------------------------------
+// floatingPointFromChars()
+//-----------------------------------------------
 template <std::floating_point T, size_t S>
-static T floatingPointFromChars(const std::array<std::byte, S>& bytes, size_t offset, size_t size, std::chars_format fmt = std::chars_format::general)
+static std::from_chars_result floatingPointFromChars(T& target, const std::array<std::byte, S>& bytes, size_t offset, size_t size, std::chars_format fmt = std::chars_format::general)
 {
-    T retVal = T();
-    std::from_chars_result result = std::from_chars(
+    return std::from_chars(
         reinterpret_cast<const char*>(&bytes[offset]),
         reinterpret_cast<const char*>(&bytes[offset + size - 1]),
-        retVal,
+        target,
         fmt
     );
-    return T;
 }
 
 namespace dted {
+//-----------------------------------------------
+// UserHeaderLabel Constructor
+//-----------------------------------------------
 UserHeaderLabel::UserHeaderLabel(const UserHeaderLabelBlob& uhlBlob)
 {
-    //// recognitionSentinel
-    //stringFromChars(uhlBlob.recognitionSentinel, recognitionSentinel);
-    //
-    //// fixedbyStandard
-    //fixedByStandard = static_cast<uint8_t>(uhlBlob.fixedStandard[0]);
+    // recognitionSentinel
+    stringFromChars(recognitionSentinel, uhlBlob.recognitionSentinel);
+    
+    // fixedbyStandard
+    fixedByStandard = static_cast<uint8_t>(uhlBlob.fixedStandard[0]);
 
-    //// longitudeOfOrigin
-    //auto result = std::from_chars((const char*)(&uhlBlob.longitudeOfOrigin[0]), (const char*)(&uhlBlob.longitudeOfOrigin[uhlBlob.longitudeOfOrigin.size() - 1]), longitudeOfOrigin);
-    //std::cout << longitudeOfOrigin << std::endl;
-    //
-    //longitudeOfOrigin = floatingPointFromChars<double>(uhlBlob.longitudeOfOrigin, 0, 7);
-    //if (uhlBlob.longitudeOfOrigin[7] == (std::byte)'W') {
-    //    longitudeOfOrigin *= -1;
-    //}
-    //if (longitudeOfOrigin >= 180.0 || longitudeOfOrigin <= -180.0) {
-    //    std::cerr << "WARNING UserHeaderLabel() Longitude of origin has invalid range. [-180.0, 180.0]: " << longitudeOfOrigin << std::endl;
-    //}
-    //// latitudeOfOrigin
-    //latitudeOfOrigin = floatingPointFromChars<double>(uhlBlob.latitudeOfOrigin, 0, 7);
-    //if (uhlBlob.latitudeOfOrigin[7] == (std::byte)'S') {
-    //    latitudeOfOrigin *= -1;
-    //}
-    //if (latitudeOfOrigin >= 90.0 || latitudeOfOrigin <= -90.0) {
-    //    std::cerr << "WARNING UserHeaderLabel() Latitude of origin has invalid range. [-90.0, 90.0]: " << latitudeOfOrigin << std::endl;
-    //}
+    // longitudeOfOrigin
+    floatingPointFromChars(longitudeOfOriginTenthsArcSeconds, uhlBlob.longitudeOfOriginTenthsArcSeconds, 0, uhlBlob.longitudeOfOriginTenthsArcSeconds.size() - 1);
+    if (uhlBlob.longitudeOfOriginTenthsArcSeconds[uhlBlob.longitudeOfOriginTenthsArcSeconds.size() - 1] == (std::byte)'W') {
+        longitudeOfOriginTenthsArcSeconds = -longitudeOfOriginTenthsArcSeconds;
+    }
 
-    //// longitudeIntervalArcSeconds
-    //longitudeIntervalArcSeconds = integralFromChars<uint16_t>(uhlBlob.longitudeIntervalArcSeconds, 0, 4);
+    // latitudeOfOrigin
+    floatingPointFromChars(latitudeOfOriginTenthsArcSeconds, uhlBlob.latitudeOfOriginTenthsArcSeconds, 0, uhlBlob.latitudeOfOriginTenthsArcSeconds.size() - 1);
+    if (uhlBlob.latitudeOfOriginTenthsArcSeconds[uhlBlob.latitudeOfOriginTenthsArcSeconds.size() - 1] == (std::byte)'S') {
+        latitudeOfOriginTenthsArcSeconds = -latitudeOfOriginTenthsArcSeconds;
+    }
 
-    //// latitudeIntervalArcSeconds
-    //latitudeIntervalArcSeconds = integralFromChars<uint16_t>(uhlBlob.latitudeIntervalArcSeconds, 0, 4);
+    // longitudeIntervalArcSeconds
+    integralFromChars(longitudeIntervalArcSeconds, uhlBlob.longitudeIntervalArcSeconds, 0, uhlBlob.longitudeIntervalArcSeconds.size());
 
-    //// absoluteVerticalAccuracy
-    //stringFromChars(uhlBlob.absoluteVerticalAccuracy, absoluteVerticalAccuracy);
-    //std::string absoluteVerticalAccuracyString = toString(uhlBlob.absoluteVerticalAccuracy, 0, 4);
-    //if (absoluteVerticalAccuracyString != "NA$$") {
-    //    absoluteVerticalAccuracy = std::stoi(absoluteVerticalAccuracyString);
-    //}
+    // latitudeIntervalArcSeconds
+    integralFromChars(latitudeIntervalArcSeconds, uhlBlob.latitudeIntervalArcSeconds, 0, uhlBlob.latitudeIntervalArcSeconds.size());
 
-    //// unclassifiedSecurityCode
-    //unclassifiedSecurtiyCode = static_cast<char>(uhlBlob.securityCode[0]);
+    // absoluteVerticalAccuracy
+    std::string absoluteVerticalAccuracyString;
+    stringFromChars(absoluteVerticalAccuracyString, uhlBlob.absoluteVerticalAccuracy);
+    if (absoluteVerticalAccuracyString != "NA$$") {
+        absoluteVerticalAccuracy = std::stoi(absoluteVerticalAccuracyString);
+    }
 
-    //// uniqueReferenceNumber
-    //stringFromChars(uhlBlob.uniqueReference, uniqueReferenceNumber);
-    //
-    //// numberOfLongitudeLines
-    //numberOfLongitudeLines = toIntegral<uint16_t>(uhlBlob.numberOfLongitudeLines, 0, 4);
+    // unclassifiedSecurityCode
+    unclassifiedSecurtiyCode = static_cast<char>(uhlBlob.securityCode[0]);
 
-    //// numberOfLatitudePoints
-    //numberOfLatitudePoints = toIntegral<uint16_t>(uhlBlob.numberOfLatitudePoints, 0, 4);
+    // uniqueReferenceNumber
+    stringFromChars(uniqueReferenceNumber, uhlBlob.uniqueReference);
+    
+    // numberOfLongitudeLines
+    integralFromChars(numberOfLongitudeLines, uhlBlob.numberOfLongitudeLines, 0, 4);
 
-    //// multipleAccuracy
-    //multipleAccuracy = static_cast<int>(static_cast<char>(uhlBlob.multipleAccuracy[0]) - '0') > 0;
+    // numberOfLatitudePoints
+    integralFromChars(numberOfLatitudePoints, uhlBlob.numberOfLatitudePoints, 0, 4);
+
+    // multipleAccuracy
+    multipleAccuracy = static_cast<int>(static_cast<char>(uhlBlob.multipleAccuracy[0]) - '0') > 0;
 }
 
+//-----------------------------------------------
+// DataSetIdentification Constructor
+//-----------------------------------------------
 DataSetIdentification::DataSetIdentification(const DataSetIdentificationBlob& dsiBlob)
 {
-    ////recognitionSentinel
-    //recognitionSentinel = toString(dsiBlob.recognitionSentinel, 0, 3);
+    //recognitionSentinel
+    stringFromChars(recognitionSentinel, dsiBlob.recognitionSentinel);
 
-    ////securityCode
-    //securityCode = static_cast<char>(dsiBlob.securityCode[0]);
+    //securityCode
+    securityCode = static_cast<char>(dsiBlob.securityCode[0]);
 
-    ////securityControlMarkings
-    //securityControlMarkings = toString(dsiBlob.securityControlMarkings, 0, 2);
+    //securityControlMarkings
+    stringFromChars(securityControlMarkings, dsiBlob.securityControlMarkings);
 
-    ////securityHandlingDescription
-    //securityHandlingDescription = toString(dsiBlob.securityHandlingDescription, 0, 27);
+    //securityHandlingDescription
+    stringFromChars(securityHandlingDescription, dsiBlob.securityHandlingDescription);
 
-    ////dtedLevel
-    //dtedLevel = toIntegral<uint8_t>(dsiBlob.dtedLevel, 4, 1);
+    //dtedLevel
+    integralFromChars(dtedLevel, dsiBlob.dtedLevel, 4, 1);
 
-    ////uniqueReference
-    //uniqueReference = toString(dsiBlob.uniqueReference, 0, 15);
+    //uniqueReference
+    stringFromChars(uniqueReference, dsiBlob.uniqueReference);
 
-    ////dataEditionNumber
-    //dataEditionNumber = std::stoi(toString(dsiBlob.dataEditionNumber, 0, 2));
+    //dataEditionNumber
+    integralFromChars(dataEditionNumber, dsiBlob.dataEditionNumber, 0, 2);
 
-    ////matchMergeVersion
-    //matchMergeVersion = static_cast<char>(dsiBlob.matchMergeVersion[0]);
+    //matchMergeVersion
+    matchMergeVersion = static_cast<char>(dsiBlob.matchMergeVersion[0]);
 
-    ////maintenanceDate
-    //std::chrono::year maintenanceDateYear(std::stoi(toString(dsiBlob.maintenanceDate, 0, 2)));
-    //std::chrono::month maintenanceDateMonth(std::stoi(toString(dsiBlob.maintenanceDate, 2, 2)));
-    //maintenanceDate = std::chrono::year_month(maintenanceDateYear, maintenanceDateMonth);
+    //maintenanceDate
+    uint8_t maintenanceDateYear;
+    integralFromChars(maintenanceDateYear, dsiBlob.maintenanceDate, 0, 2);
+    uint8_t maintenanceDateMonth;
+    integralFromChars(maintenanceDateMonth, dsiBlob.maintenanceDate, 2, 2);
+    maintenanceDate = std::chrono::year_month(std::chrono::year(maintenanceDateYear), std::chrono::month(maintenanceDateMonth));
 
-    ////matchMergeDate
-    //std::chrono::year matchMergeDateYear(std::stoi(toString(dsiBlob.matchMergeDate, 0, 2)));
-    //std::chrono::month matchMergeDateMonth(std::stoi(toString(dsiBlob.matchMergeDate, 2, 2)));
-    //maintenanceDate = std::chrono::year_month(matchMergeDateYear, matchMergeDateMonth);
+    //matchMergeDate
+    uint8_t matchMergeDateYear;
+    integralFromChars(matchMergeDateYear, dsiBlob.matchMergeDate, 0, 2);
+    uint8_t matchMergeDateMonth;
+    integralFromChars(matchMergeDateMonth, dsiBlob.matchMergeDate, 2, 2);
+    matchMergeDate = std::chrono::year_month(std::chrono::year(matchMergeDateYear), std::chrono::month(matchMergeDateMonth));
 
-    ////maintenanceDescCode
-    //maintenanceDescCode = toIntegral<uint8_t>(dsiBlob.maintenanceDescCode, 0, 4);
+    //maintenanceDescCode
+    integralFromChars(maintenanceDescCode, dsiBlob.maintenanceDescCode, 0, 4);
 
-    ////producerCode
-    //producerCode = toString(dsiBlob.producerCode, 0, 8);
+    //producerCode
+    stringFromChars(producerCode, dsiBlob.producerCode);
 
-    ////productSpec
-    //productSpec = toString(dsiBlob.productSpec, 0, 9);
+    //productSpec
+    stringFromChars(productSpec, dsiBlob.productSpec);
 
-    ////productSpecAmendmentNumber
-    //productSpecAmendmentNumber = std::stoi(toString(dsiBlob.productSpecAmend, 0, 2));
+    //productSpecAmendmentNumber
+    integralFromChars(productSpecAmendmentNumber, dsiBlob.productSpecAmend, 0, 2);
 
-    ////productSpecDate
-    //std::chrono::year productSpecDateYear(toIntegral<uint8_t>(dsiBlob.productSpecDate, 0, 2));
-    //std::chrono::month productSpecDateMonth(toIntegral<uint8_t>(dsiBlob.productSpecDate, 2, 2));
-    //productSpecDate = std::chrono::year_month(productSpecDateYear, productSpecDateMonth);
+    //productSpecDate
+    uint8_t productSpecDateYear;
+    integralFromChars(productSpecDateYear, dsiBlob.productSpecDate, 0, 2);
+    uint8_t productSpecDateMonth;
+    integralFromChars(productSpecDateMonth, dsiBlob.productSpecDate, 2, 2);
+    productSpecDate = std::chrono::year_month(std::chrono::year(productSpecDateYear), std::chrono::month(productSpecDateMonth));
 
-    ////verticalDatum
-    //verticalDatum = toString(dsiBlob.verticalDatum, 0, 3);
+    //verticalDatum
+    stringFromChars(verticalDatum, dsiBlob.verticalDatum);
 
-    ////horizontalDatum
-    //horizontalDatum = toString(dsiBlob.horizontalDatum, 0, 5);
+    //horizontalDatum
+    stringFromChars(horizontalDatum, dsiBlob.horizontalDatum);
 
-    ////digitizingSystem
-    //digitizingSystem = toString(dsiBlob.digitizingSystem, 0, 10);
+    //digitizingSystem
+    stringFromChars(digitizingSystem, dsiBlob.digitizingSystem);
 
-    ////compilationDate
-    //std::chrono::year compilationDateYear(toIntegral<uint8_t>(dsiBlob.compilationDate, 0, 2));
-    //std::chrono::month compilationDateMonth(toIntegral<uint8_t>(dsiBlob.compilationDate, 2, 2));
-    //compilationDate = std::chrono::year_month(compilationDateYear, compilationDateMonth);
+    //compilationDate
+    uint8_t compilationDateYear;
+    integralFromChars(compilationDateYear, dsiBlob.compilationDate, 0, 2);
+    uint8_t compilationDateMonth;
+    integralFromChars(compilationDateMonth, dsiBlob.compilationDate, 2, 2);
+    compilationDate = std::chrono::year_month(std::chrono::year(compilationDateYear), std::chrono::month(compilationDateMonth));
 
-    ////latitudeOfOriginDeg
-    //latitudeOfOriginDeg = toFloating<double>(dsiBlob.latOrigin, 0, 8, 2);
-    //if (dsiBlob.latOrigin[8] == static_cast<std::byte>('S')) {
-    //    latitudeOfOriginDeg *= -1.0;
-    //}
+    //latitudeOfOriginTenthsArcSeconds
+    floatingPointFromChars(latitudeOfOriginTenthsArcSeconds, dsiBlob.latitudeOfOriginTenthsArcSeconds, 0, dsiBlob.latitudeOfOriginTenthsArcSeconds.size() - 1);
+    if (dsiBlob.latitudeOfOriginTenthsArcSeconds[dsiBlob.latitudeOfOriginTenthsArcSeconds.size() - 1] == static_cast<std::byte>('S')) {
+        latitudeOfOriginTenthsArcSeconds = -latitudeOfOriginTenthsArcSeconds;
+    }
 
-    ////longitudeOfOriginDeg
-    //longitudeOfOriginDeg = toFloatingDecimalPresent<double>(dsiBlob.lonOrigin, 0, 9);
-    //if (dsiBlob.lonOrigin[9] == static_cast<std::byte>('W')) {
-    //    longitudeOfOriginDeg *= -1.0;
-    //}
+    //longitudeOfOriginTenthsArcSeconds
+    floatingPointFromChars(longitudeOfOriginTenthsArcSeconds, dsiBlob.longitudeOfOriginTenthsArcSeconds, 0, dsiBlob.longitudeOfOriginTenthsArcSeconds.size() - 1);
+    if (dsiBlob.longitudeOfOriginTenthsArcSeconds[dsiBlob.longitudeOfOriginTenthsArcSeconds.size() - 1] == static_cast<std::byte>('W')) {
+        longitudeOfOriginTenthsArcSeconds = -longitudeOfOriginTenthsArcSeconds;
+    }
 
-    ////latSWCornerDeg
-    //latSWCornerDeg = toFloating<double>(dsiBlob.latSWCorner, 0, 3, 3);
-    //if (dsiBlob.latSWCorner[7] == static_cast<std::byte>('S')) {
-    //    latSWCornerDeg *= -1.0;
-    //}
+    //latSWCornerTenthsArcSeconds
+    floatingPointFromChars(latSWCornerTenthsArcSeconds, dsiBlob.latSWCorner, 0, dsiBlob.latSWCorner.size() - 1);
+    if (dsiBlob.latSWCorner[dsiBlob.latSWCorner.size() - 1] == static_cast<std::byte>('S')) {
+        latSWCornerTenthsArcSeconds = -latSWCornerTenthsArcSeconds;
+    }
 
-    //lonSWCornerDeg
+    //lonSWCornerTenthsArcSeconds
+    floatingPointFromChars(lonSWCornerTenthsArcSeconds, dsiBlob.lonSWCorner, 0, dsiBlob.lonSWCorner.size() - 1);
+    if (dsiBlob.lonSWCorner[dsiBlob.lonSWCorner.size() - 1] == static_cast<std::byte>('W')) {
+        lonSWCornerTenthsArcSeconds = -lonSWCornerTenthsArcSeconds;
+    }
 
+    //latNWCornerTenthsArcSeconds
+    floatingPointFromChars(latNWCornerTenthsArcSeconds, dsiBlob.latNWCorner, 0, dsiBlob.latNWCorner.size() - 1);
+    if (dsiBlob.latNWCorner[dsiBlob.latNWCorner.size() - 1] == static_cast<std::byte>('S')) {
+        latNWCornerTenthsArcSeconds = -latNWCornerTenthsArcSeconds;
+    }
 
-    //latNWCornerDeg
+    //lonNWCornerTenthsArcSeconds
+    floatingPointFromChars(lonNWCornerTenthsArcSeconds, dsiBlob.lonNWCorner, 0, dsiBlob.lonNWCorner.size() - 1);
+    if (dsiBlob.lonNWCorner[dsiBlob.lonNWCorner.size() - 1] == static_cast<std::byte>('W')) {
+        lonNWCornerTenthsArcSeconds = -lonNWCornerTenthsArcSeconds;
+    }
 
+    //latNECornerTenthsArcSeconds
+    floatingPointFromChars(latNECornerTenthsArcSeconds, dsiBlob.latNECorner, 0, dsiBlob.latNECorner.size() - 1);
+    if (dsiBlob.latNECorner[dsiBlob.latNECorner.size() - 1] == static_cast<std::byte>('S')) {
+        latNECornerTenthsArcSeconds = -latNECornerTenthsArcSeconds;
+    }
 
-    //lonNWCornerDeg
+    //lonNECornerTenthsArcSeconds
+    floatingPointFromChars(lonNECornerTenthsArcSeconds, dsiBlob.lonNECorner, 0, dsiBlob.lonNECorner.size() - 1);
+    if (dsiBlob.lonNECorner[dsiBlob.lonNECorner.size() - 1] == static_cast<std::byte>('W')) {
+        lonNECornerTenthsArcSeconds = -lonNECornerTenthsArcSeconds;
+    }
 
+    //latSECornerTenthsArcSeconds
+    floatingPointFromChars(latSECornerTenthsArcSeconds, dsiBlob.latSECorner, 0, dsiBlob.latSECorner.size() - 1);
+    if (dsiBlob.latSECorner[dsiBlob.latSECorner.size() - 1] == static_cast<std::byte>('S')) {
+        latSECornerTenthsArcSeconds = -latSECornerTenthsArcSeconds;
+    }
 
-    //latNECornerDeg
-
-
-    //lonNECornerDeg
-
-
-    //latSECornerDeg
-
-
-    //lonSECornerDeg
-
+    //lonSECornerTenthsArcSeconds
+    floatingPointFromChars(lonSECornerTenthsArcSeconds, dsiBlob.lonSECorner, 0, dsiBlob.lonSECorner.size() - 1);
+    if (dsiBlob.lonSECorner[dsiBlob.lonSECorner.size() - 1] == static_cast<std::byte>('W')) {
+        lonSECornerTenthsArcSeconds = -lonSECornerTenthsArcSeconds;
+    }
 
     //orientationAngle
-
+    floatingPointFromChars(orientationAngle, dsiBlob.orientationAngle, 0, dsiBlob.orientationAngle.size());
 
     //latitudeIntervalArcSeconds
-
+    integralFromChars(latitudeIntervalArcSeconds, dsiBlob.latitudeIntervalArcSeconds, 0, dsiBlob.latitudeIntervalArcSeconds.size());
 
     //longitudeIntervalArcSeconds
-
+    integralFromChars(longitudeIntervalArcSeconds, dsiBlob.longitudeIntervalArcSeconds, 0, dsiBlob.longitudeIntervalArcSeconds.size());
 
     //numberLatitudeLines
-
+    integralFromChars(numberLatitudeLines, dsiBlob.numberLatitudeLines, 0, dsiBlob.numberLatitudeLines.size());
 
     //numberLongitudeLines
-
+    integralFromChars(numberLongitudeLines, dsiBlob.numberLongitudeLines, 0, dsiBlob.numberLongitudeLines.size());
 
     //partialCellIndicator
-
+    integralFromChars(partialCellIndicator, dsiBlob.partialCellIndicator, 0, dsiBlob.partialCellIndicator.size());
 
     //coveragePercent
-
+    integralFromChars(coveragePercent, dsiBlob.coveragePercent, 0, dsiBlob.coveragePercent.size());
 
     //geoidUndulation
-
-
-
+    stringFromChars(geoidUndulation, dsiBlob.geoidUndulation);
 }
 
+//-----------------------------------------------
+// AccuracyDescriptionRecord Constructor
+//-----------------------------------------------
 AccuracyDescriptionRecord::AccuracyDescriptionRecord(const AccuracyDescriptionRecordBlob& accBlob)
 {
 
