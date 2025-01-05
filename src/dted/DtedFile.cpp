@@ -11,7 +11,8 @@ namespace dted {
 // Constructor
 //-----------------------------------------------
 DtedFile::DtedFile(const std::string& filename)
-    : _filename(filename)
+    : _filename(filename),
+      _valid(false)
 {
 }
 
@@ -26,8 +27,10 @@ DtedFile::~DtedFile()
 // Move Constructor
 //----------------------------------------------
 DtedFile::DtedFile(DtedFile&& other) noexcept 
-    : _filename(std::move(other._filename))
+    : _filename(std::move(other._filename)),
+      _valid(other._valid)
 {
+    other._valid = false;
 }
 
 //-----------------------------------------------
@@ -37,6 +40,9 @@ DtedFile& DtedFile::operator=(DtedFile&& other) noexcept
 {
     if (this != &other) {
         _filename = std::move(other._filename);
+        _valid = other._valid;
+
+        other._valid = false;
     }
     return *this;
 }
