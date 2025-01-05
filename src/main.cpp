@@ -11,95 +11,87 @@ using dted::DtedFile;
 #include <vector>
 
 const std::string file = "data/n39_w084_1arc_v3.dt2";
-template <size_t S>
-std::string bytesToString(const std::array<std::byte, S>& bytes) {
-    return std::string(reinterpret_cast<const char*>(bytes.data()), bytes.size());
-}
 
 const std::vector<std::string> getDtedFileDataLines(const DtedFile& file) {
     std::vector<std::string> lines;
+    //// User Header Label
+    //lines.push_back("----User Header Label----");
+    //lines.push_back("recognitionSentinel: " + file.uhl().recognitionSentinel);
+    //lines.push_back("fixedStandard: " + file.uhl().fixedByStandard);
+    //lines.push_back("longitudeOfOrigin: " + std::to_string(file.uhl().longitudeOfOriginTenthsArcSeconds));
+    //lines.push_back("latitudeOfOrigin: " + file.uhl().latitudeOfOriginTenthsArcSeconds);
+    //lines.push_back("longitudeInterval: " + file.uhl().longitudeIntervalArcSeconds);
+    //lines.push_back("latitudeInterval: " + file.uhl().latitudeIntervalArcSeconds);
+    //lines.push_back("absoluteVerticalAccuracy: " + file.uhl().absoluteVerticalAccuracy);
+    //lines.push_back("securityCode: " + file.uhl().securityCode);
+    //lines.push_back("uniqueReference: " + file.uhl().uniqueReference);
+    //lines.push_back("numberOfLongitudeLines: " + file.uhl().numberOfLongitudeLines);
+    //lines.push_back("numberOfLatitudePoints: " + file.uhl().numberOfLatitudePoints);
+    //lines.push_back("multipleAccuracy: " + file.uhl().multipleAccuracy);
+    //lines.push_back("reserved: " + file.uhl().reserved);
+    //lines.push_back("");
 
-    dted::UserHeaderLabel uhl(file.uhl());
-    dted::DataSetIdentification dsi(file.dsi());
+    //// Data Set Identification
+    //lines.push_back("----Data Set Identification----");
+    //lines.push_back("recognitionSentinel: " + file.dsi().recognitionSentinel);
+    //lines.push_back("securityCode: " + file.dsi().securityCode);
+    //lines.push_back("securityControlMarkings: " + file.dsi().securityControlMarkings);
+    //lines.push_back("securityHandlingDescription: " + file.dsi().securityHandlingDescription);
+    //lines.push_back("reserved1: " + file.dsi().reserved1);
+    //lines.push_back("dtedLevel: " + file.dsi().dtedLevel);
+    //lines.push_back("uniqueReference: " + file.dsi().uniqueReference);
+    //lines.push_back("reserved2: " + file.dsi().reserved2);
+    //lines.push_back("dataEditionNumber: " + file.dsi().dataEditionNumber);
+    //lines.push_back("matchMergeVersion: " + file.dsi().matchMergeVersion);
+    //lines.push_back("maintenanceDate: " + file.dsi().maintenanceDate);
+    //lines.push_back("matchMergeDate: " + file.dsi().matchMergeDate);
+    //lines.push_back("maintenanceDescCode: " + file.dsi().maintenanceDescCode);
+    //lines.push_back("producerCode: " + file.dsi().producerCode);
+    //lines.push_back("reserved3: " + file.dsi().reserved3);
+    //lines.push_back("productSpec: " + file.dsi().productSpec);
+    //lines.push_back("productSpecAmend: " + file.dsi().productSpecAmend);
+    //lines.push_back("productSpecDate: " + file.dsi().productSpecDate);
+    //lines.push_back("verticalDatum: " + file.dsi().verticalDatum);
+    //lines.push_back("horizontalDatum: " + file.dsi().horizontalDatum);
+    //lines.push_back("digitizingSystem: " + file.dsi().digitizingSystem);
+    //lines.push_back("compilationDate: " + file.dsi().compilationDate);
+    //lines.push_back("reserved4: " + file.dsi().reserved4);
+    //lines.push_back("latOrigin: " + file.dsi().latitudeOfOriginTenthsArcSeconds);
+    //lines.push_back("lonOrigin: " + file.dsi().longitudeOfOriginTenthsArcSeconds);
+    //lines.push_back("latSWCorner: " + file.dsi().latSWCorner);
+    //lines.push_back("lonSWCorner: " + file.dsi().lonSWCorner);
+    //lines.push_back("latNWCorner: " + file.dsi().latNWCorner);
+    //lines.push_back("lonNWCorner: " + file.dsi().lonNWCorner);
+    //lines.push_back("latNECorner: " + file.dsi().latNECorner);
+    //lines.push_back("lonNECorner: " + file.dsi().lonNECorner);
+    //lines.push_back("latSECorner: " + file.dsi().latSECorner);
+    //lines.push_back("lonSECorner: " + file.dsi().lonSECorner);
+    //lines.push_back("orientationAngle: " + file.dsi().orientationAngle);
+    //lines.push_back("latitudeInterval: " + file.dsi().latitudeIntervalArcSeconds);
+    //lines.push_back("longitudeInterval: " + file.dsi().longitudeIntervalArcSeconds);
+    //lines.push_back("numberLatitudeLines: " + file.dsi().numberLatitudeLines);
+    //lines.push_back("numberLongitudeLines: " + file.dsi().numberLongitudeLines);
+    //lines.push_back("partialCellIndicator: " + file.dsi().partialCellIndicator);
+    //lines.push_back("coveragePercent: " + file.dsi().coveragePercent);
+    //lines.push_back("geoidUndulation: " + file.dsi().geoidUndulation);
+    //lines.push_back("reserved5: " + file.dsi().reserved5);
+    //lines.push_back("");
 
-    // User Header Label
-    lines.push_back("----User Header Label----");
-    lines.push_back("recognitionSentinel: " + bytesToString(file.uhl().recognitionSentinel));
-    lines.push_back("fixedStandard: " + bytesToString(file.uhl().fixedStandard));
-    lines.push_back("longitudeOfOrigin: " + bytesToString(file.uhl().longitudeOfOriginTenthsArcSeconds));
-    lines.push_back("latitudeOfOrigin: " + bytesToString(file.uhl().latitudeOfOriginTenthsArcSeconds));
-    lines.push_back("longitudeInterval: " + bytesToString(file.uhl().longitudeIntervalArcSeconds));
-    lines.push_back("latitudeInterval: " + bytesToString(file.uhl().latitudeIntervalArcSeconds));
-    lines.push_back("absoluteVerticalAccuracy: " + bytesToString(file.uhl().absoluteVerticalAccuracy));
-    lines.push_back("securityCode: " + bytesToString(file.uhl().securityCode));
-    lines.push_back("uniqueReference: " + bytesToString(file.uhl().uniqueReference));
-    lines.push_back("numberOfLongitudeLines: " + bytesToString(file.uhl().numberOfLongitudeLines));
-    lines.push_back("numberOfLatitudePoints: " + bytesToString(file.uhl().numberOfLatitudePoints));
-    lines.push_back("multipleAccuracy: " + bytesToString(file.uhl().multipleAccuracy));
-    lines.push_back("reserved: " + bytesToString(file.uhl().reserved));
-    lines.push_back("");
-
-    // Data Set Identification
-    lines.push_back("----Data Set Identification----");
-    lines.push_back("recognitionSentinel: " + bytesToString(file.dsi().recognitionSentinel));
-    lines.push_back("securityCode: " + bytesToString(file.dsi().securityCode));
-    lines.push_back("securityControlMarkings: " + bytesToString(file.dsi().securityControlMarkings));
-    lines.push_back("securityHandlingDescription: " + bytesToString(file.dsi().securityHandlingDescription));
-    lines.push_back("reserved1: " + bytesToString(file.dsi().reserved1));
-    lines.push_back("dtedLevel: " + bytesToString(file.dsi().dtedLevel));
-    lines.push_back("uniqueReference: " + bytesToString(file.dsi().uniqueReference));
-    lines.push_back("reserved2: " + bytesToString(file.dsi().reserved2));
-    lines.push_back("dataEditionNumber: " + bytesToString(file.dsi().dataEditionNumber));
-    lines.push_back("matchMergeVersion: " + bytesToString(file.dsi().matchMergeVersion));
-    lines.push_back("maintenanceDate: " + bytesToString(file.dsi().maintenanceDate));
-    lines.push_back("matchMergeDate: " + bytesToString(file.dsi().matchMergeDate));
-    lines.push_back("maintenanceDescCode: " + bytesToString(file.dsi().maintenanceDescCode));
-    lines.push_back("producerCode: " + bytesToString(file.dsi().producerCode));
-    lines.push_back("reserved3: " + bytesToString(file.dsi().reserved3));
-    lines.push_back("productSpec: " + bytesToString(file.dsi().productSpec));
-    lines.push_back("productSpecAmend: " + bytesToString(file.dsi().productSpecAmend));
-    lines.push_back("productSpecDate: " + bytesToString(file.dsi().productSpecDate));
-    lines.push_back("verticalDatum: " + bytesToString(file.dsi().verticalDatum));
-    lines.push_back("horizontalDatum: " + bytesToString(file.dsi().horizontalDatum));
-    lines.push_back("digitizingSystem: " + bytesToString(file.dsi().digitizingSystem));
-    lines.push_back("compilationDate: " + bytesToString(file.dsi().compilationDate));
-    lines.push_back("reserved4: " + bytesToString(file.dsi().reserved4));
-    lines.push_back("latOrigin: " + bytesToString(file.dsi().latitudeOfOriginTenthsArcSeconds));
-    lines.push_back("lonOrigin: " + bytesToString(file.dsi().longitudeOfOriginTenthsArcSeconds));
-    lines.push_back("latSWCorner: " + bytesToString(file.dsi().latSWCorner));
-    lines.push_back("lonSWCorner: " + bytesToString(file.dsi().lonSWCorner));
-    lines.push_back("latNWCorner: " + bytesToString(file.dsi().latNWCorner));
-    lines.push_back("lonNWCorner: " + bytesToString(file.dsi().lonNWCorner));
-    lines.push_back("latNECorner: " + bytesToString(file.dsi().latNECorner));
-    lines.push_back("lonNECorner: " + bytesToString(file.dsi().lonNECorner));
-    lines.push_back("latSECorner: " + bytesToString(file.dsi().latSECorner));
-    lines.push_back("lonSECorner: " + bytesToString(file.dsi().lonSECorner));
-    lines.push_back("orientationAngle: " + bytesToString(file.dsi().orientationAngle));
-    lines.push_back("latitudeInterval: " + bytesToString(file.dsi().latitudeIntervalArcSeconds));
-    lines.push_back("longitudeInterval: " + bytesToString(file.dsi().longitudeIntervalArcSeconds));
-    lines.push_back("numberLatitudeLines: " + bytesToString(file.dsi().numberLatitudeLines));
-    lines.push_back("numberLongitudeLines: " + bytesToString(file.dsi().numberLongitudeLines));
-    lines.push_back("partialCellIndicator: " + bytesToString(file.dsi().partialCellIndicator));
-    lines.push_back("coveragePercent: " + bytesToString(file.dsi().coveragePercent));
-    lines.push_back("geoidUndulation: " + bytesToString(file.dsi().geoidUndulation));
-    lines.push_back("reserved5: " + bytesToString(file.dsi().reserved5));
-    lines.push_back("");
-
-    // Accuracy Description Record
-    lines.push_back("----Accuracy Description Record----");
-    lines.push_back("recognitionSentinel: " + bytesToString(file.acc().recognitionSentinel));
-    lines.push_back("absHorizontalAccuracy: " + bytesToString(file.acc().absHorizontalAccuracy));
-    lines.push_back("absVerticalAccuracy: " + bytesToString(file.acc().absVerticalAccuracy));
-    lines.push_back("relHorizontalAccuracy: " + bytesToString(file.acc().relHorizontalAccuracy));
-    lines.push_back("relVerticalAccuracy: " + bytesToString(file.acc().relVerticalAccuracy));
-    lines.push_back("reserved1: " + bytesToString(file.acc().reserved1));
-    lines.push_back("reservedDMA: " + bytesToString(file.acc().reservedDMA));
-    lines.push_back("reserved2: " + bytesToString(file.acc().reserved2));
-    lines.push_back("accuracyOutlineFlag: " + bytesToString(file.acc().accuracyOutlineFlag));
-    lines.push_back("accuracySubregions: " + bytesToString(file.acc().accuracySubregions));
-    lines.push_back("reservedDMA2: " + bytesToString(file.acc().reservedDMA2));
-    lines.push_back("reserved3: " + bytesToString(file.acc().reserved3));
-    lines.push_back("");
+    //// Accuracy Description Record
+    //lines.push_back("----Accuracy Description Record----");
+    //lines.push_back("recognitionSentinel: " + file.acc().recognitionSentinel);
+    //lines.push_back("absHorizontalAccuracy: " + file.acc().absHorizontalAccuracy);
+    //lines.push_back("absVerticalAccuracy: " + file.acc().absVerticalAccuracy);
+    //lines.push_back("relHorizontalAccuracy: " + file.acc().relHorizontalAccuracy);
+    //lines.push_back("relVerticalAccuracy: " + file.acc().relVerticalAccuracy);
+    //lines.push_back("reserved1: " + file.acc().reserved1);
+    //lines.push_back("reservedDMA: " + file.acc().reservedDMA);
+    //lines.push_back("reserved2: " + file.acc().reserved2);
+    //lines.push_back("accuracyOutlineFlag: " + file.acc().accuracyOutlineFlag);
+    //lines.push_back("accuracySubregions: " + file.acc().accuracySubregions);
+    //lines.push_back("reservedDMA2: " + file.acc().reservedDMA2);
+    //lines.push_back("reserved3: " + file.acc().reserved3);
+    //lines.push_back("");
 
     return lines;
 }
@@ -109,6 +101,7 @@ std::vector<std::string> newTextData;
 static void dropCallback(GLFWwindow* window, int count, const char** paths)
 {
     DtedFile newFile(paths[0]);
+    newFile.loadFile(true);
     if (newFile.valid()) {
         newTextData = getDtedFileDataLines(newFile);
     }
@@ -124,6 +117,7 @@ static void render(GLFWwindow* window)
 
     // Text data
     DtedFile dtedFile(file);
+    dtedFile.loadFile(true);
     std::vector<std::string> textData = getDtedFileDataLines(dtedFile);
 
     ImGuiIO& io = ImGui::GetIO();

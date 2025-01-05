@@ -1,11 +1,11 @@
 #ifndef DTED_FILE_H
 #define DTED_FILE_H
 
-#include "dted/dtedFileDefinitions.h"
 #include "dted/dtedParsedStructs.h"
 
 #include <string>
 #include <memory>
+#include <optional>
 
 namespace dted {
 
@@ -22,23 +22,23 @@ public:
     DtedFile(DtedFile&& other) noexcept;
     DtedFile& operator=(DtedFile&& other) noexcept;
 
-    const UserHeaderLabelBlob& uhl() const { return reinterpret_cast<UserHeaderLabelBlob&>(m_Data.get()[USER_HEADER_LABEL_BLOB_OFFSET]); }
-    const DataSetIdentificationBlob& dsi() const { return reinterpret_cast<DataSetIdentificationBlob&>(m_Data.get()[DATA_SET_IDENTIFICATION_BLOB_OFFSET]); }
-    const AccuracyDescriptionRecordBlob& acc() const { return reinterpret_cast<AccuracyDescriptionRecordBlob&>(m_Data.get()[ACCURACY_DESCRIPTION_RECORD_BLOB_OFFSET]); }
+    const UserHeaderLabel& uhl() const { return _uhl; }
+    const DataSetIdentification& dsi() const { return _dsi; }
+    const AccuracyDescriptionRecord& acc() const { return _acc; }
 
-    bool isDataLoaded();
+    void loadFile(bool printLoadStats = false);
 
-    bool valid() const;
-    std::string filename() const { return m_FileName; }
-    const std::streamsize dataSize() const { return m_DataSize; }
-    const std::byte* data() const { return m_Data.get(); }
-
-
+    bool valid() const { return _valid; }
+    std::string filename() const { return _filename; }
 
 private:
-    std::string m_FileName;
-    std::streamsize m_DataSize{ 0 };
-    std::unique_ptr<std::byte[]> m_Data{nullptr};
+    UserHeaderLabel _uhl;
+    DataSetIdentification _dsi;
+    AccuracyDescriptionRecord _acc;
+
+    bool _valid;
+
+    std::string _filename;
 };
 
 } // End dted namespace

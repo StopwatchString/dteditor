@@ -1,5 +1,7 @@
 #include "dted/DtedFile.h"
 
+#include "dted/dtedFileDefinitions.h"
+
 #include <iostream>
 #include <fstream>
 
@@ -9,32 +11,8 @@ namespace dted {
 // Constructor
 //-----------------------------------------------
 DtedFile::DtedFile(const std::string& filename)
-    : m_FileName(filename)
+    : _filename(filename)
 {
-    // Get file size
-    std::ifstream file(m_FileName, std::ios::binary | std::ios::ate);
-    if (!file.is_open()) {
-        std::cerr << "ERROR Cannot open file " << filename << std::endl;
-        return;
-    }
-    m_DataSize = file.tellg();
-
-    // Create heap block sized to the file
-    m_Data = std::make_unique<std::byte[]>(m_DataSize);
-
-    // Go to beginning of file, then read into heap block
-    file.seekg(0, std::ios::beg);
-    if (!file.good()) {
-        std::cerr << "ERROR Cannot seek to header!" << std::endl;
-        return;
-    }
-    if (!file.read(reinterpret_cast<char*>(m_Data.get()), m_DataSize)) {
-        std::cerr << "ERROR Failed to pull entire file into heap block." << std::endl;
-    }
-
-
-
-    file.close();
 }
 
 //-----------------------------------------------
@@ -42,16 +20,13 @@ DtedFile::DtedFile(const std::string& filename)
 //-----------------------------------------------
 DtedFile::~DtedFile()
 {
-
 }
 
 //-----------------------------------------------
 // Move Constructor
 //----------------------------------------------
-DtedFile::DtedFile(DtedFile&& other) noexcept
-    : m_FileName(std::move(other.m_FileName)),
-      m_DataSize(std::move(other.m_DataSize)),
-      m_Data(std::move(other.m_Data))
+DtedFile::DtedFile(DtedFile&& other) noexcept 
+    : _filename(std::move(other._filename))
 {
 }
 
@@ -61,28 +36,70 @@ DtedFile::DtedFile(DtedFile&& other) noexcept
 DtedFile& DtedFile::operator=(DtedFile&& other) noexcept
 {
     if (this != &other) {
-        m_FileName = std::move(other.m_FileName);
-        m_DataSize = std::move(other.m_DataSize);
-        m_Data = std::move(other.m_Data);
+        _filename = std::move(other._filename);
     }
     return *this;
 }
 
 //-----------------------------------------------
-// valid()
+// loadFile()
 //----------------------------------------------
-bool DtedFile::valid() const
+void DtedFile::loadFile(bool printLoadStats)
 {
-    // If we don't have data, then we aren't valid
-    if (m_Data.get() == nullptr) return false;
-    // If we don't have enough data to have all 3 headers, then we aren't valid
-    if (m_DataSize < USER_HEADER_LABEL_BLOB_SIZE + DATA_SET_IDENTIFICATION_BLOB_SIZE + ACCURACTY_DESCRIPTION_RECORD_BLOB_SIZE) return false;
+    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 
-    UserHeaderLabelBlob uhl = *(reinterpret_cast<UserHeaderLabelBlob*>(m_Data.get() + USER_HEADER_LABEL_BLOB_OFFSET));
-    DataSetIdentificationBlob dsi = *(reinterpret_cast<DataSetIdentificationBlob*>(m_Data.get() + DATA_SET_IDENTIFICATION_BLOB_OFFSET));
-    AccuracyDescriptionRecordBlob acc = *(reinterpret_cast<AccuracyDescriptionRecordBlob*>(m_Data.get() + ACCURACY_DESCRIPTION_RECORD_BLOB_OFFSET));
+    // Get file size
+    std::ifstream file(_filename, std::ios::binary | std::ios::ate);
+    if (!file.is_open()) {
+        std::cerr << "ERROR Cannot open file " << _filename << std::endl;
+        return;
+    }
+    std::streampos fileSize = file.tellg();
 
-    return uhl.valid() && dsi.valid() && acc.valid();
+    // Create heap block sized to the file
+    std::unique_ptr<std::byte[]> data = std::make_unique<std::byte[]>(fileSize);
+
+    // Go to beginning of file, then read into heap block
+    file.seekg(0, std::ios::beg);
+    if (!file.good()) {
+        std::cerr << "ERROR Cannot seek to header!" << std::endl;
+        return;
+    }
+    if (!file.read(reinterpret_cast<char*>(data.get()), fileSize)) {
+        std::cerr << "ERROR Failed to pull entire file into heap block." << std::endl;
+    }
+
+    file.close();
+
+    UserHeaderLabelBlob* uhlBlob = reinterpret_cast<UserHeaderLabelBlob*>(data.get() + USER_HEADER_LABEL_BLOB_OFFSET);
+    if (!uhlBlob->valid()) {
+        std::cerr << "WARNING DtedFile::loadFile() Parsed UserHeaderLabel is NOT valid. Failed to load file: " << _filename << std::endl;
+        return;
+    }
+    _uhl = UserHeaderLabel(*uhlBlob);
+
+    DataSetIdentificationBlob* dsiBlob = reinterpret_cast<DataSetIdentificationBlob*>(data.get() + DATA_SET_IDENTIFICATION_BLOB_OFFSET);
+    if (!uhlBlob->valid()) {
+        std::cerr << "WARNING DtedFile::loadFile() Parsed DataSetIdentification is NOT valid. Failed to load file: " << _filename << std::endl;
+        return;
+    }
+    _dsi = DataSetIdentification(*dsiBlob);
+
+    AccuracyDescriptionRecordBlob* accBlob = reinterpret_cast<AccuracyDescriptionRecordBlob*>(data.get() + ACCURACY_DESCRIPTION_RECORD_BLOB_OFFSET);
+    if (!uhlBlob->valid()) {
+        std::cerr << "WARNING DtedFile::loadFile() Parsed AccuracyDescriptionRecord is NOT valid. Failed to load file: " << _filename << std::endl;
+        return;
+    }
+    _acc = AccuracyDescriptionRecord(*accBlob);
+
+    _valid = true;
+
+    if (printLoadStats) {
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        std::chrono::steady_clock::duration elapsedTime = end - start;
+        std::chrono::milliseconds elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(elapsedTime);
+        std::cout << "Time taken: " << elapsedMs.count() << "ms" << std::endl;
+    }
 }
 
 } // End dted namespace
