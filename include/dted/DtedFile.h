@@ -35,7 +35,7 @@ private:
     bool loadElevations(const std::unique_ptr<std::byte[]>& data);
 
     bool _valid;
-    int16_t* _data;
+    int16_t* _elevations;
     uint16_t _columnCount;
     uint16_t _rowCount;
 

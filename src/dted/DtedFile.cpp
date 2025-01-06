@@ -141,9 +141,18 @@ bool DtedFile::loadElevations(const std::unique_ptr<std::byte[]>& data)
         ColumnHeaderBlob* header = reinterpret_cast<ColumnHeaderBlob*>(data.get() + columnOffset);
         std::byte* recordData = data.get() + columnOffset + COLUMN_HEADER_BLOB_SIZE;
         for (uint32_t lat = 0; lat < _rowCount; lat++) {
-            uint16_t high = (uint16_t)(recordData + lat * 2)[0];
-            uint16_t low = (uint16_t)(recordData + lat * 2)[1];
-            _data[lon * _rowCount + lat] = ((high << 8) + low);
+            uint8_t high = (uint8_t)(recordData + lat * 2)[0];
+            uint8_t low = (uint8_t)(recordData + lat * 2)[1];
+            int16_t negative = 1;
+
+            // DTED does not save elevation data as 2's compliment, so we need to convert.
+            // Highest bit is used to set sign, rest is interpreted as if unsigned.
+            if ((high & 0b1000'0000) > 0b0000'0000) {
+                negative = -1;
+                high = high & 0b0111'1111;
+            }
+
+            _data[lon * _rowCount + lat] = ((static_cast<int16_t>(high << 8)) + static_cast<int16_t>(low)) * negative;
         }
     }
 
