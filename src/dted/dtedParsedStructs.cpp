@@ -22,8 +22,8 @@ template <std::integral T, size_t S>
 static std::from_chars_result integralFromChars(T& target, const std::array<std::byte, S>& bytes, size_t offset, size_t size, int base = 10)
 {
     return std::from_chars(
-        reinterpret_cast<const char*>(&bytes[offset]),
-        reinterpret_cast<const char*>(&bytes[offset + size - 1]),
+        reinterpret_cast<const char*>(bytes.data() + offset),
+        reinterpret_cast<const char*>(bytes.data() + offset + size),
         target,
         base
     );
@@ -36,8 +36,8 @@ template <std::floating_point T, size_t S>
 static std::from_chars_result floatingPointFromChars(T& target, const std::array<std::byte, S>& bytes, size_t offset, size_t size, std::chars_format fmt = std::chars_format::general)
 {
     return std::from_chars(
-        reinterpret_cast<const char*>(&bytes[offset]),
-        reinterpret_cast<const char*>(&bytes[offset + size - 1]),
+        reinterpret_cast<const char*>(bytes.data() + offset),
+        reinterpret_cast<const char*>(bytes.data() + offset + size),
         target,
         fmt
     );

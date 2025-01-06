@@ -34,11 +34,14 @@ public:
 private:
     bool loadElevations(const std::unique_ptr<std::byte[]>& data);
 
-    UserHeaderLabel _uhl;
-    DataSetIdentification _dsi;
-    AccuracyDescriptionRecord _acc;
-
     bool _valid;
+    int16_t* _data;
+    uint16_t _columnCount;
+    uint16_t _rowCount;
+
+    UserHeaderLabel _uhl{};
+    DataSetIdentification _dsi{};
+    AccuracyDescriptionRecord _acc{};
 
     std::string _filename;
 };

@@ -12,7 +12,10 @@ namespace dted {
 //-----------------------------------------------
 DtedFile::DtedFile(const std::string& filename)
     : _filename(filename),
-      _valid(false)
+      _valid(false),
+      _data(nullptr),
+      _rowCount(0),
+      _columnCount(0)
 {
 }
 
@@ -25,17 +28,23 @@ DtedFile::~DtedFile()
 
 //-----------------------------------------------
 // Move Constructor
-//----------------------------------------------
+//-----------------------------------------------
 DtedFile::DtedFile(DtedFile&& other) noexcept 
     : _filename(std::move(other._filename)),
-      _valid(other._valid)
+      _valid(other._valid),
+      _data(other._data),
+      _rowCount(other._rowCount),
+      _columnCount(other._columnCount)
 {
     other._valid = false;
+    other._data = nullptr;
+    other._rowCount = 0;
+    other._columnCount = 0;
 }
 
 //-----------------------------------------------
 // Move Assignment
-//----------------------------------------------
+//-----------------------------------------------
 DtedFile& DtedFile::operator=(DtedFile&& other) noexcept
 {
     if (this != &other) {
@@ -49,7 +58,7 @@ DtedFile& DtedFile::operator=(DtedFile&& other) noexcept
 
 //-----------------------------------------------
 // loadFile()
-//----------------------------------------------
+//-----------------------------------------------
 void DtedFile::loadFile(bool printLoadStats)
 {
     std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
@@ -98,16 +107,22 @@ void DtedFile::loadFile(bool printLoadStats)
     }
     _acc = AccuracyDescriptionRecord(*accBlob);
 
+    _columnCount = _dsi.numberLatitudeLines;
+    _rowCount = _dsi.numberLongitudeLines;
+
     _valid = loadElevations(data);
 
     if (printLoadStats) {
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         std::chrono::steady_clock::duration elapsedTime = end - start;
         std::chrono::milliseconds elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(elapsedTime);
-        std::cout << "Time taken: " << elapsedMs.count() << "ms" << std::endl;
+        std::cout << "Time to load " << _filename << ": " << elapsedMs.count() << "ms" << std::endl;
     }
 }
 
+//-----------------------------------------------
+// loadElevations()
+//-----------------------------------------------
 bool DtedFile::loadElevations(const std::unique_ptr<std::byte[]>& data)
 {
     bool retVal = false;
