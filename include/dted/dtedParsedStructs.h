@@ -13,8 +13,10 @@ struct UserHeaderLabel
 {
     std::string recognitionSentinel;            // 1-3   | Recognition sentinel
     uint8_t fixedByStandard{};                  // 4     | Fixed by standard
-    double longitudeOfOriginTenthsArcSeconds{}; // 5-12  | Longitude of origin
-    double latitudeOfOriginTenthsArcSeconds{};  // 13-20 | Latitude of origin
+    double longitudeOfOriginArcSeconds{};       // 5-12  | Longitude of origin
+    double longitudeOfOriginDeg{};
+    double latitudeOfOriginArcSeconds{};        // 13-20 | Latitude of origin
+    double latitudeOfOriginDeg{};
     uint16_t longitudeIntervalArcSeconds{};     // 21-24 | Longitude data interval in arc seconds       
     uint16_t latitudeIntervalArcSeconds{};      // 25-28 | Latitude data interval in arc seconds      
     uint16_t absoluteVerticalAccuracy{};        // 29-32 | Absolute vertical accuracy    
@@ -48,16 +50,16 @@ struct DataSetIdentification
     std::string horizontalDatum{};              // 145-149 | Horizontal datum
     std::string digitizingSystem{};             // 150-159 | Digitizing/collection system
     std::chrono::year_month compilationDate{};  // 160-163 | Compilation date
-    double latitudeOfOriginTenthsArcSeconds{};  // 186-194 | Latitude of origin
-    double longitudeOfOriginTenthsArcSeconds{}; // 195-204 | Longitude of origin
-    double latSWCornerTenthsArcSeconds{};       // 205-211 | Latitude of SW corner
-    double lonSWCornerTenthsArcSeconds{};       // 212-219 | Longitude of SW corner
-    double latNWCornerTenthsArcSeconds{};       // 220-226 | Latitude of NW corner
-    double lonNWCornerTenthsArcSeconds{};       // 227-234 | Longitude of NW corner
-    double latNECornerTenthsArcSeconds{};       // 235-241 | Latitude of NE corner
-    double lonNECornerTenthsArcSeconds{};       // 242-249 | Longitude of NE corner
-    double latSECornerTenthsArcSeconds{};       // 250-256 | Latitude of SE corner
-    double lonSECornerTenthsArcSeconds{};       // 257-264 | Longitude of SE corner
+    int32_t latitudeOfOriginArcSeconds{};        // 186-194 | Latitude of origin
+    int32_t longitudeOfOriginArcSeconds{};       // 195-204 | Longitude of origin
+    int32_t latSWCornerArcSeconds{};           // 205-211 | Latitude of SW corner
+    int32_t lonSWCornerArcSeconds{};           // 212-219 | Longitude of SW corner
+    int32_t latNWCornerArcSeconds{};           // 220-226 | Latitude of NW corner
+    int32_t lonNWCornerArcSeconds{};           // 227-234 | Longitude of NW corner
+    int32_t latNECornerArcSeconds{};           // 235-241 | Latitude of NE corner
+    int32_t lonNECornerArcSeconds{};           // 242-249 | Longitude of NE corner
+    int32_t latSECornerArcSeconds{};           // 250-256 | Latitude of SE corner
+    int32_t lonSECornerArcSeconds{};           // 257-264 | Longitude of SE corner
     double orientationAngle{};                  // 265-273 | Clockwise orientation angle
     uint16_t latitudeIntervalArcSeconds{};      // 274-277 | Latitude interval
     uint16_t longitudeIntervalArcSeconds{};     // 278-281 | Longitude interval

@@ -98,7 +98,7 @@ void DtedFile::loadFile(bool printLoadStats)
     }
     _acc = AccuracyDescriptionRecord(*accBlob);
 
-    _valid = true;
+    _valid = loadElevations(data);
 
     if (printLoadStats) {
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
@@ -106,6 +106,13 @@ void DtedFile::loadFile(bool printLoadStats)
         std::chrono::milliseconds elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(elapsedTime);
         std::cout << "Time taken: " << elapsedMs.count() << "ms" << std::endl;
     }
+}
+
+bool DtedFile::loadElevations(const std::unique_ptr<std::byte[]>& data)
+{
+    bool retVal = false;
+
+    return retVal;
 }
 
 } // End dted namespace

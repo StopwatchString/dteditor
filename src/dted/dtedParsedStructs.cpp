@@ -55,16 +55,22 @@ UserHeaderLabel::UserHeaderLabel(const UserHeaderLabelBlob& uhlBlob)
     // fixedbyStandard
     fixedByStandard = static_cast<uint8_t>(uhlBlob.fixedStandard[0]);
 
-    // longitudeOfOrigin
-    floatingPointFromChars(longitudeOfOriginTenthsArcSeconds, uhlBlob.longitudeOfOriginTenthsArcSeconds, 0, uhlBlob.longitudeOfOriginTenthsArcSeconds.size() - 1);
-    if (uhlBlob.longitudeOfOriginTenthsArcSeconds[uhlBlob.longitudeOfOriginTenthsArcSeconds.size() - 1] == (std::byte)'W') {
-        longitudeOfOriginTenthsArcSeconds = -longitudeOfOriginTenthsArcSeconds;
+    // longitudeOfOriginTenthsArcSeconds
+    floatingPointFromChars(longitudeOfOriginArcSeconds, uhlBlob.longitudeOfOriginArcSeconds, 0, uhlBlob.longitudeOfOriginArcSeconds.size() - 1);
+    // longitudeOfOriginDeg
+    floatingPointFromChars(longitudeOfOriginDeg, uhlBlob.longitudeOfOriginArcSeconds, 0, 4);
+    if (uhlBlob.longitudeOfOriginArcSeconds[uhlBlob.longitudeOfOriginArcSeconds.size() - 1] == (std::byte)'W') {
+        longitudeOfOriginArcSeconds = -longitudeOfOriginArcSeconds;
+        longitudeOfOriginDeg = -longitudeOfOriginDeg;
     }
 
-    // latitudeOfOrigin
-    floatingPointFromChars(latitudeOfOriginTenthsArcSeconds, uhlBlob.latitudeOfOriginTenthsArcSeconds, 0, uhlBlob.latitudeOfOriginTenthsArcSeconds.size() - 1);
-    if (uhlBlob.latitudeOfOriginTenthsArcSeconds[uhlBlob.latitudeOfOriginTenthsArcSeconds.size() - 1] == (std::byte)'S') {
-        latitudeOfOriginTenthsArcSeconds = -latitudeOfOriginTenthsArcSeconds;
+    // latitudeOfOriginTenthsArcSeconds
+    floatingPointFromChars(latitudeOfOriginArcSeconds, uhlBlob.latitudeOfOriginArcSeconds, 0, uhlBlob.latitudeOfOriginArcSeconds.size() - 1);
+    // latitudeOfOriginDeg
+    floatingPointFromChars(latitudeOfOriginDeg, uhlBlob.latitudeOfOriginArcSeconds, 0, 4);
+    if (uhlBlob.latitudeOfOriginArcSeconds[uhlBlob.latitudeOfOriginArcSeconds.size() - 1] == (std::byte)'S') {
+        latitudeOfOriginArcSeconds = -latitudeOfOriginArcSeconds;
+        latitudeOfOriginDeg = -latitudeOfOriginDeg;
     }
 
     // longitudeIntervalArcSeconds
@@ -174,64 +180,64 @@ DataSetIdentification::DataSetIdentification(const DataSetIdentificationBlob& ds
     integralFromChars(compilationDateMonth, dsiBlob.compilationDate, 2, 2);
     compilationDate = std::chrono::year_month(std::chrono::year(compilationDateYear), std::chrono::month(compilationDateMonth));
 
-    //latitudeOfOriginTenthsArcSeconds
-    floatingPointFromChars(latitudeOfOriginTenthsArcSeconds, dsiBlob.latitudeOfOriginTenthsArcSeconds, 0, dsiBlob.latitudeOfOriginTenthsArcSeconds.size() - 1);
-    if (dsiBlob.latitudeOfOriginTenthsArcSeconds[dsiBlob.latitudeOfOriginTenthsArcSeconds.size() - 1] == static_cast<std::byte>('S')) {
-        latitudeOfOriginTenthsArcSeconds = -latitudeOfOriginTenthsArcSeconds;
+    //latitudeOfOriginArcSeconds
+    integralFromChars(latitudeOfOriginArcSeconds, dsiBlob.latitudeOfOriginArcSeconds, 0, dsiBlob.latitudeOfOriginArcSeconds.size() - 1);
+    if (dsiBlob.latitudeOfOriginArcSeconds[dsiBlob.latitudeOfOriginArcSeconds.size() - 1] == static_cast<std::byte>('S')) {
+        latitudeOfOriginArcSeconds = -latitudeOfOriginArcSeconds;
     }
 
-    //longitudeOfOriginTenthsArcSeconds
-    floatingPointFromChars(longitudeOfOriginTenthsArcSeconds, dsiBlob.longitudeOfOriginTenthsArcSeconds, 0, dsiBlob.longitudeOfOriginTenthsArcSeconds.size() - 1);
-    if (dsiBlob.longitudeOfOriginTenthsArcSeconds[dsiBlob.longitudeOfOriginTenthsArcSeconds.size() - 1] == static_cast<std::byte>('W')) {
-        longitudeOfOriginTenthsArcSeconds = -longitudeOfOriginTenthsArcSeconds;
+    //longitudeOfOriginArcSeconds
+    integralFromChars(longitudeOfOriginArcSeconds, dsiBlob.longitudeOfOriginArcSeconds, 0, dsiBlob.longitudeOfOriginArcSeconds.size() - 1);
+    if (dsiBlob.longitudeOfOriginArcSeconds[dsiBlob.longitudeOfOriginArcSeconds.size() - 1] == static_cast<std::byte>('W')) {
+        longitudeOfOriginArcSeconds = -longitudeOfOriginArcSeconds;
     }
 
-    //latSWCornerTenthsArcSeconds
-    floatingPointFromChars(latSWCornerTenthsArcSeconds, dsiBlob.latSWCorner, 0, dsiBlob.latSWCorner.size() - 1);
+    //latSWCornerArcSeconds
+    integralFromChars(latSWCornerArcSeconds, dsiBlob.latSWCorner, 0, dsiBlob.latSWCorner.size() - 1);
     if (dsiBlob.latSWCorner[dsiBlob.latSWCorner.size() - 1] == static_cast<std::byte>('S')) {
-        latSWCornerTenthsArcSeconds = -latSWCornerTenthsArcSeconds;
+        latSWCornerArcSeconds = -latSWCornerArcSeconds;
     }
 
-    //lonSWCornerTenthsArcSeconds
-    floatingPointFromChars(lonSWCornerTenthsArcSeconds, dsiBlob.lonSWCorner, 0, dsiBlob.lonSWCorner.size() - 1);
+    //lonSWCornerArcSeconds
+    integralFromChars(lonSWCornerArcSeconds, dsiBlob.lonSWCorner, 0, dsiBlob.lonSWCorner.size() - 1);
     if (dsiBlob.lonSWCorner[dsiBlob.lonSWCorner.size() - 1] == static_cast<std::byte>('W')) {
-        lonSWCornerTenthsArcSeconds = -lonSWCornerTenthsArcSeconds;
+        lonSWCornerArcSeconds = -lonSWCornerArcSeconds;
     }
 
-    //latNWCornerTenthsArcSeconds
-    floatingPointFromChars(latNWCornerTenthsArcSeconds, dsiBlob.latNWCorner, 0, dsiBlob.latNWCorner.size() - 1);
+    //latNWCornerArcSeconds
+    integralFromChars(latNWCornerArcSeconds, dsiBlob.latNWCorner, 0, dsiBlob.latNWCorner.size() - 1);
     if (dsiBlob.latNWCorner[dsiBlob.latNWCorner.size() - 1] == static_cast<std::byte>('S')) {
-        latNWCornerTenthsArcSeconds = -latNWCornerTenthsArcSeconds;
+        latNWCornerArcSeconds = -latNWCornerArcSeconds;
     }
 
-    //lonNWCornerTenthsArcSeconds
-    floatingPointFromChars(lonNWCornerTenthsArcSeconds, dsiBlob.lonNWCorner, 0, dsiBlob.lonNWCorner.size() - 1);
+    //lonNWCornerArcSeconds
+    integralFromChars(lonNWCornerArcSeconds, dsiBlob.lonNWCorner, 0, dsiBlob.lonNWCorner.size() - 1);
     if (dsiBlob.lonNWCorner[dsiBlob.lonNWCorner.size() - 1] == static_cast<std::byte>('W')) {
-        lonNWCornerTenthsArcSeconds = -lonNWCornerTenthsArcSeconds;
+        lonNWCornerArcSeconds = -lonNWCornerArcSeconds;
     }
 
-    //latNECornerTenthsArcSeconds
-    floatingPointFromChars(latNECornerTenthsArcSeconds, dsiBlob.latNECorner, 0, dsiBlob.latNECorner.size() - 1);
+    //latNECornerArcSeconds
+    integralFromChars(latNECornerArcSeconds, dsiBlob.latNECorner, 0, dsiBlob.latNECorner.size() - 1);
     if (dsiBlob.latNECorner[dsiBlob.latNECorner.size() - 1] == static_cast<std::byte>('S')) {
-        latNECornerTenthsArcSeconds = -latNECornerTenthsArcSeconds;
+        latNECornerArcSeconds = -latNECornerArcSeconds;
     }
 
-    //lonNECornerTenthsArcSeconds
-    floatingPointFromChars(lonNECornerTenthsArcSeconds, dsiBlob.lonNECorner, 0, dsiBlob.lonNECorner.size() - 1);
+    //lonNECornerArcSeconds
+    integralFromChars(lonNECornerArcSeconds, dsiBlob.lonNECorner, 0, dsiBlob.lonNECorner.size() - 1);
     if (dsiBlob.lonNECorner[dsiBlob.lonNECorner.size() - 1] == static_cast<std::byte>('W')) {
-        lonNECornerTenthsArcSeconds = -lonNECornerTenthsArcSeconds;
+        lonNECornerArcSeconds = -lonNECornerArcSeconds;
     }
 
-    //latSECornerTenthsArcSeconds
-    floatingPointFromChars(latSECornerTenthsArcSeconds, dsiBlob.latSECorner, 0, dsiBlob.latSECorner.size() - 1);
+    //latSECornerArcSeconds
+    integralFromChars(latSECornerArcSeconds, dsiBlob.latSECorner, 0, dsiBlob.latSECorner.size() - 1);
     if (dsiBlob.latSECorner[dsiBlob.latSECorner.size() - 1] == static_cast<std::byte>('S')) {
-        latSECornerTenthsArcSeconds = -latSECornerTenthsArcSeconds;
+        latSECornerArcSeconds = -latSECornerArcSeconds;
     }
 
-    //lonSECornerTenthsArcSeconds
-    floatingPointFromChars(lonSECornerTenthsArcSeconds, dsiBlob.lonSECorner, 0, dsiBlob.lonSECorner.size() - 1);
+    //lonSECornerArcSeconds
+    integralFromChars(lonSECornerArcSeconds, dsiBlob.lonSECorner, 0, dsiBlob.lonSECorner.size() - 1);
     if (dsiBlob.lonSECorner[dsiBlob.lonSECorner.size() - 1] == static_cast<std::byte>('W')) {
-        lonSECornerTenthsArcSeconds = -lonSECornerTenthsArcSeconds;
+        lonSECornerArcSeconds = -lonSECornerArcSeconds;
     }
 
     //orientationAngle

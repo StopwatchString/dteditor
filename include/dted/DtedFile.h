@@ -32,6 +32,8 @@ public:
     std::string filename() const { return _filename; }
 
 private:
+    bool loadElevations(const std::unique_ptr<std::byte[]>& data);
+
     UserHeaderLabel _uhl;
     DataSetIdentification _dsi;
     AccuracyDescriptionRecord _acc;
