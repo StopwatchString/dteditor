@@ -24,6 +24,7 @@ DtedFile::DtedFile(const std::string& filename)
 //-----------------------------------------------
 DtedFile::~DtedFile()
 {
+    delete _data;
 }
 
 //-----------------------------------------------
@@ -126,6 +127,25 @@ void DtedFile::loadFile(bool printLoadStats)
 bool DtedFile::loadElevations(const std::unique_ptr<std::byte[]>& data)
 {
     bool retVal = false;
+
+    _data = new int16_t[_columnCount * _rowCount];
+
+    uint32_t baseOffset = DATA_RECORDS_FILE_OFFSET;
+    uint32_t headerSize = COLUMN_HEADER_BLOB_SIZE;
+    uint32_t dataSize = sizeof(int16_t) * _rowCount;
+    uint32_t footerSize = COLUMN_FOOTER_BLOB_SIZE;
+    uint32_t recordSize = headerSize + dataSize + footerSize;
+
+    for (uint32_t lon = 0; lon < _columnCount; lon++) {
+        uint32_t columnOffset = baseOffset + lon * recordSize;
+        ColumnHeaderBlob* header = reinterpret_cast<ColumnHeaderBlob*>(data.get() + columnOffset);
+        std::byte* recordData = data.get() + columnOffset + COLUMN_HEADER_BLOB_SIZE;
+        for (uint32_t lat = 0; lat < _rowCount; lat++) {
+            uint16_t high = (uint16_t)(recordData + lat * 2)[0];
+            uint16_t low = (uint16_t)(recordData + lat * 2)[1];
+            _data[lon * _rowCount + lat] = ((high << 8) + low);
+        }
+    }
 
     return retVal;
 }

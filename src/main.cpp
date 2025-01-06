@@ -39,7 +39,10 @@ static void render(GLFWwindow* window)
 
     // Text data
     DtedFile dtedFile(file);
-    dtedFile.loadFile(true);
+    for (int i = 0; i < 100; i++) {
+        dtedFile.loadFile(true);
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
     std::vector<std::string> textData = getDtedFileDataLines(dtedFile);
 
     ImGuiIO& io = ImGui::GetIO();
