@@ -13,7 +13,7 @@ namespace dted {
 DtedFile::DtedFile(const std::string& filename)
     : _filename(filename),
       _valid(false),
-      _data(nullptr),
+      _elevations(nullptr),
       _rowCount(0),
       _columnCount(0)
 {
@@ -24,7 +24,7 @@ DtedFile::DtedFile(const std::string& filename)
 //-----------------------------------------------
 DtedFile::~DtedFile()
 {
-    delete _data;
+    delete _elevations;
 }
 
 //-----------------------------------------------
@@ -33,12 +33,12 @@ DtedFile::~DtedFile()
 DtedFile::DtedFile(DtedFile&& other) noexcept 
     : _filename(std::move(other._filename)),
       _valid(other._valid),
-      _data(other._data),
+      _elevations(other._elevations),
       _rowCount(other._rowCount),
       _columnCount(other._columnCount)
 {
     other._valid = false;
-    other._data = nullptr;
+    other._elevations = nullptr;
     other._rowCount = 0;
     other._columnCount = 0;
 }
@@ -128,7 +128,7 @@ bool DtedFile::loadElevations(const std::unique_ptr<std::byte[]>& data)
 {
     bool retVal = false;
 
-    _data = new int16_t[_columnCount * _rowCount];
+    _elevations = new int16_t[_columnCount * _rowCount];
 
     uint32_t baseOffset = DATA_RECORDS_FILE_OFFSET;
     uint32_t headerSize = COLUMN_HEADER_BLOB_SIZE;
@@ -137,22 +137,28 @@ bool DtedFile::loadElevations(const std::unique_ptr<std::byte[]>& data)
     uint32_t recordSize = headerSize + dataSize + footerSize;
 
     for (uint32_t lon = 0; lon < _columnCount; lon++) {
+        uint64_t checksum = 0;
+
         uint32_t columnOffset = baseOffset + lon * recordSize;
         ColumnHeaderBlob* header = reinterpret_cast<ColumnHeaderBlob*>(data.get() + columnOffset);
+        for (uint32_t i = 0; i < COLUMN_HEADER_BLOB_SIZE; i++) {
+            checksum += *(uint8_t*)(data.get() + columnOffset + i);
+        }
+
         std::byte* recordData = data.get() + columnOffset + COLUMN_HEADER_BLOB_SIZE;
         for (uint32_t lat = 0; lat < _rowCount; lat++) {
             uint8_t high = (uint8_t)(recordData + lat * 2)[0];
-            uint8_t low = (uint8_t)(recordData + lat * 2)[1];
-            int16_t negative = 1;
+            uint8_t low =  (uint8_t)(recordData + lat * 2)[1];
 
-            // DTED does not save elevation data as 2's compliment, so we need to convert.
+            checksum += (uint64_t)high + (uint64_t)low;
+
+            // DTED does not save elevation data as 2s compliment, so we need to convert.
             // Highest bit is used to set sign, rest is interpreted as if unsigned.
-            if ((high & 0b1000'0000) > 0b0000'0000) {
-                negative = -1;
-                high = high & 0b0111'1111;
-            }
+            uint8_t highestBit = high & 0b1000'0000;
+            high = high & 0b0111'1111;
+            int8_t negative = -1 * (highestBit >> 7) + 1 * (0b1000'0000 - highestBit);
 
-            _data[lon * _rowCount + lat] = ((static_cast<int16_t>(high << 8)) + static_cast<int16_t>(low)) * negative;
+            _elevations[lon * _rowCount + lat] = ((static_cast<int16_t>(high << 8)) + static_cast<int16_t>(low)) * negative;
         }
     }
 
