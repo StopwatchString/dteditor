@@ -124,6 +124,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)extern\cpputils\include;$(SolutionDir)extern\glh\include;$(SolutionDir)extern\glh\include\dearimgui</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -154,6 +155,7 @@
     <ClCompile Include="src\dted\DtedFile.cpp" />
     <ClCompile Include="src\dted\dtedParsedStructs.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Threadpool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="extern\cpputils\include\cpputils\windows\dwm.h" />
@@ -191,6 +193,7 @@
     <ClInclude Include="include\GLFW\glfw3.h" />
     <ClInclude Include="include\GLFW\glfw3native.h" />
     <ClInclude Include="include\icon.h" />
+    <ClInclude Include="include\Threadpool.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

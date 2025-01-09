@@ -2,6 +2,7 @@
 #define DTED_FILE_H
 
 #include "dted/dtedParsedStructs.h"
+#include "Threadpool.h"
 
 #include <string>
 #include <memory>

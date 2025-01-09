@@ -3,14 +3,18 @@ using dted::DtedFile;
 #include "icon.h"
 
 #include "dted/dtedParsedStructs.h"
+#include "Threadpool.h"
 
 #include "cpputils/windows/dwm.h"
 #include "glh/classes/OpenGLApplication.h"
+#include "cpputils/Timer.h"
 
 #include <iostream>
 #include <vector>
 
-const std::string file = "data/n39_w084_1arc_v3.dt2";
+const std::string file1 = "data/n39_w084_1arc_v3.dt2";
+const std::string file2 = "data/n39_w085_1arc_v3.dt2";
+Threadpool threadpool(32);
 
 const std::vector<std::string> getDtedFileDataLines(const DtedFile& file) {
     std::vector<std::string> lines;
@@ -38,12 +42,13 @@ static void render(GLFWwindow* window)
     glfwMakeContextCurrent(window);
 
     // Text data
-    DtedFile dtedFile(file);
+    DtedFile dtedFile1(file1);
+    DtedFile dtedFile2(file2);
     for (int i = 0; i < 100; i++) {
-        dtedFile.loadFile(true);
+        dtedFile1.loadFile(true);
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
-    std::vector<std::string> textData = getDtedFileDataLines(dtedFile);
+    std::vector<std::string> textData = getDtedFileDataLines(dtedFile1);
 
     ImGuiIO& io = ImGui::GetIO();
 
@@ -84,6 +89,22 @@ static void render(GLFWwindow* window)
 
 int main()
 {
+
+    // Text data
+    DtedFile dtedFile1(file1);
+    DtedFile dtedFile2(file2);
+    for (int i = 0; i < 100; i++) {
+        {
+            ScopePrintTimer<std::chrono::steady_clock, std::chrono::milliseconds> timer("Time(ms): ");
+            threadpool.addJob([&]() {dtedFile1.loadFile(false); });
+            threadpool.addJob([&]() {dtedFile2.loadFile(false); });
+            threadpool.waitForClearQueue();
+            //dtedFile1.loadFile(false);
+            //dtedFile2.loadFile(false);
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+
     OpenGLApplication::ApplicationConfig appConfig = {};
     appConfig.windowName = "Dteditor";
     appConfig.windowInitWidth = 600;
@@ -111,14 +132,4 @@ int main()
     }
 
     return 0;
-}
-
-int WinMain(
-    HINSTANCE hInstance,
-    HINSTANCE hPrevInstance,
-               LPSTR     lpCmdLine,
-               int       nShowCmd
-)
-{
-    main();
 }

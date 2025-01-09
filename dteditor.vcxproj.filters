@@ -114,6 +114,9 @@
     <ClCompile Include="src\dted\dtedParsedStructs.cpp">
       <Filter>Source Files\dted</Filter>
     </ClCompile>
+    <ClCompile Include="src\Threadpool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\GLFW\glfw3.h">
@@ -220,6 +223,9 @@
     </ClInclude>
     <ClInclude Include="include\dted\dtedParsedStructs.h">
       <Filter>Header Files\dted</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Threadpool.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
