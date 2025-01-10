@@ -2,6 +2,8 @@
 
 #include "dted/dtedFileDefinitions.h"
 
+#include "vectorclass.h"
+
 #include <iostream>
 #include <fstream>
 #include <thread>
@@ -147,20 +149,77 @@ bool DtedFile::loadElevations(const std::unique_ptr<std::byte[]>& data)
         }
 
         std::byte* recordData = data.get() + columnOffset + COLUMN_HEADER_BLOB_SIZE;
-        for (uint32_t lat = 0; lat < _rowCount; lat++) {
-            uint8_t high = (uint8_t)(recordData + lat * 2)[0];
-            uint8_t low =  (uint8_t)(recordData + lat * 2)[1];
 
-            checksum += (uint64_t)high + (uint64_t)low;
+        //Vec16us signMask(0b0111'1111'1111'1111); // Mask to keep lower 15 bits
+        //Vec16us negativeMask(0b1000'0000'0000'0000); // Mask to detect sign bit
+        //uint32_t evenRowUpperLimit = (_rowCount / 16) * 16; // Process rows in blocks of 16
+        //for (uint32_t lat = 0; lat < evenRowUpperLimit; lat += 16) {
+        //    // Load 16 values (32 bytes) into a SIMD register
+        //    Vec16us rawVals(
+        //        _mm256_loadu_si256(reinterpret_cast<const __m256i*>(recordData + lat * 2))
+        //    );
 
-            // DTED does not save elevation data as 2s compliment, so we need to convert.
-            // Highest bit is used to set sign, rest is interpreted as if unsigned.
-            uint8_t highestBit = high & 0b1000'0000;
-            high = high & 0b0111'1111;
-            int8_t negative = -1 * (highestBit >> 7) + 1 * (0b1000'0000 - highestBit);
+        //    // Calculate checksum (sum of high and low bytes)
+        //    for (int i = 0; i < 16; i++) {
+        //        uint16_t rawVal = rawVals[i];
+        //        uint8_t high = (rawVal >> 8) & 0xFF;
+        //        uint8_t low = rawVal & 0xFF;
+        //        checksum += high + low;
+        //    }
 
-            _elevations[lon * _rowCount + lat] = ((static_cast<int16_t>(high << 8)) + static_cast<int16_t>(low)) * negative;
+        //    // Apply sign conversion
+        //    Vec16us signBits = rawVals & negativeMask;
+        //    Vec16us magnitudes = rawVals & signMask;
+        //    Vec16us convertedVals = magnitudes - (signBits >> 15) * 2 * magnitudes;
+
+        //    // Store processed values in _elevations
+        //    _mm256_storeu_si256(
+        //        reinterpret_cast<__m256i*>(&_elevations[lon * _rowCount + lat]),
+        //        convertedVals
+        //    );
+        //}
+
+        Vec8us signMask(0b0111'1111'1111'1111); // Mask to keep lower 15 bits
+        Vec8us negativeMask(0b1000'0000'0000'0000); // Mask to detect sign bit
+        uint32_t evenRowUpperLimit = (_rowCount / 8) * 8;
+        for (uint32_t lat = 0; lat < evenRowUpperLimit; lat += 8) {
+            // Load 8 values (16 bytes) into a SIMD register
+            Vec8us rawVals(_mm_loadu_si128(reinterpret_cast<const __m128i*>(recordData + lat * 2)));
+
+            // Calculate checksum (sum of high and low bytes)
+            for (int i = 0; i < 8; i++) {
+                uint16_t rawVal = rawVals[i];
+                uint8_t high = (rawVal >> 8) & 0xFF;
+                uint8_t low = rawVal & 0xFF;
+                checksum += high + low;
+            }
+
+            // Apply sign conversion
+            Vec8us signBits = rawVals & negativeMask;
+            Vec8us magnitudes = rawVals & signMask;
+            Vec8us convertedVals = magnitudes - (signBits << 1);
+
+            // Store processed values in _elevations
+            _mm_storeu_si128(
+                reinterpret_cast<__m128i*>(&_elevations[lon * _rowCount + lat]),
+                convertedVals
+            );
         }
+
+        //for (uint32_t lat = 0; lat < _rowCount; lat++) {
+        //    uint8_t high = (uint8_t)(recordData + lat * 2)[0];
+        //    uint8_t low =  (uint8_t)(recordData + lat * 2)[1];
+
+        //    checksum += (uint64_t)high + (uint64_t)low;
+
+        //    // DTED does not save elevation data as 2s compliment, so we need to convert.
+        //    // Highest bit is used to set sign, rest is interpreted as if unsigned.
+        //    uint8_t highestBit = high & 0b1000'0000;
+        //    high = high & 0b0111'1111;
+        //    int8_t negative = -1 * (highestBit >> 7) + 1 * (0b1000'0000 - highestBit);
+
+        //    _elevations[lon * _rowCount + lat] = ((static_cast<int16_t>(high << 8)) + static_cast<int16_t>(low)) * negative;
+        //}
     }
 
     return retVal;

@@ -30,6 +30,9 @@ project "Dteditor"
     kind "ConsoleApp"  -- Change this to "WindowedApp" or "StaticLib"/"SharedLib" if needed
     language "C++"
 
+    debugdir "../../"
+    buildoptions { "/Zc:__cplusplus", "/arch:AVX2" }
+
     -- Specify the directories for source and include files
     files {
         "../../src/**.cpp",

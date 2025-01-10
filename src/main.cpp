@@ -96,10 +96,7 @@ int main()
     for (int i = 0; i < 100; i++) {
         {
             ScopePrintTimer<std::chrono::steady_clock, std::chrono::milliseconds> timer("Time(ms): ");
-            threadpool.addJob([&]() {dtedFile1.loadFile(false); });
-            threadpool.addJob([&]() {dtedFile2.loadFile(false); });
-            threadpool.waitForClearQueue();
-            //dtedFile1.loadFile(false);
+            dtedFile1.loadFile(false);
             //dtedFile2.loadFile(false);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
