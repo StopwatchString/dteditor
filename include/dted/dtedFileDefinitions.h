@@ -25,8 +25,8 @@ struct UserHeaderLabelBlob
     std::array<std::byte, 1>  multipleAccuracy;            // 56    | Multiple accuracy indicator
     std::array<std::byte, 24> reserved;                    // 57-80 | Reserved for future use
 
-    bool valid() const {
-        static const std::array<std::byte, 3> validRecognitionSentinel = { std::byte('U'), std::byte('H'), std::byte('L') };
+    constexpr bool valid() const noexcept {
+        constexpr std::array<std::byte, 3> validRecognitionSentinel = { std::byte('U'), std::byte('H'), std::byte('L') };
         return recognitionSentinel == validRecognitionSentinel;
     }
 };
@@ -79,8 +79,8 @@ struct DataSetIdentificationBlob
     std::array<std::byte, 100> geoidUndulation;             // 393-492 | Geoid undulation
     std::array<std::byte, 156> reserved5;                   // 493-648 | Reserved for future use
 
-    bool valid() const {
-        static const std::array<std::byte, 3> validRecognitionSentinel = { std::byte('D'), std::byte('S'), std::byte('I') };
+    constexpr bool valid() const noexcept {
+        constexpr std::array<std::byte, 3> validRecognitionSentinel = { std::byte('D'), std::byte('S'), std::byte('I') };
         return recognitionSentinel == validRecognitionSentinel;
     }
 };
@@ -103,8 +103,8 @@ struct AccuracyDescriptionRecordBlob
     std::array<std::byte, 18>   reservedDMA2;          // 2614-2631 | Reserved for DMA
     std::array<std::byte, 69>   reserved3;             // 2632-2700 | Reserved
 
-    bool valid() const {
-        static const std::array<std::byte, 3> validRecognitionSentinel = { std::byte('A'), std::byte('C'), std::byte('C') };
+    constexpr bool valid() const noexcept {
+        constexpr std::array<std::byte, 3> validRecognitionSentinel = { std::byte('A'), std::byte('C'), std::byte('C') };
         return recognitionSentinel == validRecognitionSentinel;
     }
 };
