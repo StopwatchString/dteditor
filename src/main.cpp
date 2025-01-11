@@ -89,7 +89,6 @@ static void render(GLFWwindow* window)
 
 int main()
 {
-
     // Text data
     DtedFile dtedFile1(file1);
     DtedFile dtedFile2(file2);

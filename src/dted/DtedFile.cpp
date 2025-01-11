@@ -150,60 +150,36 @@ bool DtedFile::loadElevations(const std::unique_ptr<std::byte[]>& data)
 
         std::byte* recordData = data.get() + columnOffset + COLUMN_HEADER_BLOB_SIZE;
 
-        //Vec16us signMask(0b0111'1111'1111'1111); // Mask to keep lower 15 bits
-        //Vec16us negativeMask(0b1000'0000'0000'0000); // Mask to detect sign bit
-        //uint32_t evenRowUpperLimit = (_rowCount / 16) * 16; // Process rows in blocks of 16
-        //for (uint32_t lat = 0; lat < evenRowUpperLimit; lat += 16) {
-        //    // Load 16 values (32 bytes) into a SIMD register
-        //    Vec16us rawVals(
-        //        _mm256_loadu_si256(reinterpret_cast<const __m256i*>(recordData + lat * 2))
-        //    );
-
-        //    // Calculate checksum (sum of high and low bytes)
-        //    for (int i = 0; i < 16; i++) {
-        //        uint16_t rawVal = rawVals[i];
-        //        uint8_t high = (rawVal >> 8) & 0xFF;
-        //        uint8_t low = rawVal & 0xFF;
-        //        checksum += high + low;
-        //    }
-
-        //    // Apply sign conversion
-        //    Vec16us signBits = rawVals & negativeMask;
-        //    Vec16us magnitudes = rawVals & signMask;
-        //    Vec16us convertedVals = magnitudes - (signBits >> 15) * 2 * magnitudes;
-
-        //    // Store processed values in _elevations
-        //    _mm256_storeu_si256(
-        //        reinterpret_cast<__m256i*>(&_elevations[lon * _rowCount + lat]),
-        //        convertedVals
-        //    );
-        //}
-
         Vec8us signMask(0b0111'1111'1111'1111); // Mask to keep lower 15 bits
         Vec8us negativeMask(0b1000'0000'0000'0000); // Mask to detect sign bit
         uint32_t evenRowUpperLimit = (_rowCount / 8) * 8;
         for (uint32_t lat = 0; lat < evenRowUpperLimit; lat += 8) {
-            // Load 8 values (16 bytes) into a SIMD register
+            // Load into SIMD register
             Vec8us rawVals(_mm_loadu_si128(reinterpret_cast<const __m128i*>(recordData + lat * 2)));
 
-            // Calculate checksum (sum of high and low bytes)
+            // Checksum
             for (int i = 0; i < 8; i++) {
                 uint16_t rawVal = rawVals[i];
                 uint8_t high = (rawVal >> 8) & 0xFF;
                 uint8_t low = rawVal & 0xFF;
-                checksum += high + low;
+                checksum += static_cast<uint64_t>(high) + static_cast<uint64_t>(low);
             }
 
-            // Apply sign conversion
+            // Vectorized handling of high bit sign check
             Vec8us signBits = rawVals & negativeMask;
             Vec8us magnitudes = rawVals & signMask;
             Vec8us convertedVals = magnitudes - (signBits << 1);
 
-            // Store processed values in _elevations
+            // Save out of SIMD register into _elevations
             _mm_storeu_si128(
                 reinterpret_cast<__m128i*>(&_elevations[lon * _rowCount + lat]),
                 convertedVals
             );
+        }
+
+        uint32_t leftoverCount = _rowCount % 8;
+        for (uint32_t lat = _rowCount - leftoverCount; lat < _rowCount; lat++) {
+            
         }
 
         //for (uint32_t lat = 0; lat < _rowCount; lat++) {
