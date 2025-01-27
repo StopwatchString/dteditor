@@ -94,7 +94,7 @@ int main()
     DtedFile dtedFile2(file2);
     for (int i = 0; i < 100; i++) {
         {
-            ScopePrintTimer<std::chrono::steady_clock, std::chrono::milliseconds> timer("Time(ms): ");
+            cpputils::ScopePrintTimer<std::chrono::steady_clock, std::chrono::milliseconds> timer("Time(ms): ");
             dtedFile1.loadFile(false);
             //dtedFile2.loadFile(false);
         }
