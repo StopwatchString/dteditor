@@ -29,7 +29,9 @@ static void dropCallback(GLFWwindow* window, int count, const char** paths)
 {
     DtedFile newFile(paths[0]);
     newFile.loadFile(true);
-    if (newFile.valid()) { newTextData = getDtedFileDataLines(newFile); }
+    if (newFile.valid()) {
+        newTextData = getDtedFileDataLines(newFile);
+    }
     else {
         newTextData = {newFile.filename(), "Not a valid Dted File!"};
     }
