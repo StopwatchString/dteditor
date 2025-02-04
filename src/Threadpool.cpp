@@ -9,7 +9,7 @@ Threadpool::Threadpool(uint32_t threadCount)
     writerWaiting = false;
 
     for (uint32_t i = 0; i < threadCount; i++) {
-        //threads.emplace_back(getJob);
+        // threads.emplace_back(getJob);
     }
 }
 
@@ -34,7 +34,6 @@ uint32_t Threadpool::addJob(const std::function<void()>& job)
     writerWaiting = false;
 
     jobs.push(job);
-
 
     return 0;
 }

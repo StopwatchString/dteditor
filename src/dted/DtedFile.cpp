@@ -13,14 +13,9 @@ namespace dted {
 //-----------------------------------------------
 // Constructor
 //-----------------------------------------------
-DtedFile::DtedFile(const std::string& filename)
-    : _filename(filename),
-      _valid(false),
-      _elevations(nullptr),
-      _rowCount(0),
-      _columnCount(0)
-{
-}
+DtedFile::DtedFile(const std::string& filename) :
+    _filename(filename), _valid(false), _elevations(nullptr), _rowCount(0), _columnCount(0)
+{}
 
 //-----------------------------------------------
 // Destructor
@@ -33,12 +28,12 @@ DtedFile::~DtedFile()
 //-----------------------------------------------
 // Move Constructor
 //-----------------------------------------------
-DtedFile::DtedFile(DtedFile&& other) noexcept 
-    : _filename(std::move(other._filename)),
-      _valid(other._valid),
-      _elevations(other._elevations),
-      _rowCount(other._rowCount),
-      _columnCount(other._columnCount)
+DtedFile::DtedFile(DtedFile&& other) noexcept :
+    _filename(std::move(other._filename)),
+    _valid(other._valid),
+    _elevations(other._elevations),
+    _rowCount(other._rowCount),
+    _columnCount(other._columnCount)
 {
     other._valid = false;
     other._elevations = nullptr;
@@ -92,21 +87,26 @@ void DtedFile::loadFile(bool printLoadStats)
 
     UserHeaderLabelBlob* uhlBlob = reinterpret_cast<UserHeaderLabelBlob*>(data.get() + USER_HEADER_LABEL_BLOB_OFFSET);
     if (!uhlBlob->valid()) {
-        std::cerr << "WARNING DtedFile::loadFile() Parsed UserHeaderLabel is NOT valid. Failed to load file: " << _filename << std::endl;
+        std::cerr << "WARNING DtedFile::loadFile() Parsed UserHeaderLabel is NOT valid. Failed to load file: "
+                  << _filename << std::endl;
         return;
     }
     _uhl = UserHeaderLabel(*uhlBlob);
 
-    DataSetIdentificationBlob* dsiBlob = reinterpret_cast<DataSetIdentificationBlob*>(data.get() + DATA_SET_IDENTIFICATION_BLOB_OFFSET);
+    DataSetIdentificationBlob* dsiBlob
+        = reinterpret_cast<DataSetIdentificationBlob*>(data.get() + DATA_SET_IDENTIFICATION_BLOB_OFFSET);
     if (!uhlBlob->valid()) {
-        std::cerr << "WARNING DtedFile::loadFile() Parsed DataSetIdentification is NOT valid. Failed to load file: " << _filename << std::endl;
+        std::cerr << "WARNING DtedFile::loadFile() Parsed DataSetIdentification is NOT valid. Failed to load file: "
+                  << _filename << std::endl;
         return;
     }
     _dsi = DataSetIdentification(*dsiBlob);
 
-    AccuracyDescriptionRecordBlob* accBlob = reinterpret_cast<AccuracyDescriptionRecordBlob*>(data.get() + ACCURACY_DESCRIPTION_RECORD_BLOB_OFFSET);
+    AccuracyDescriptionRecordBlob* accBlob
+        = reinterpret_cast<AccuracyDescriptionRecordBlob*>(data.get() + ACCURACY_DESCRIPTION_RECORD_BLOB_OFFSET);
     if (!uhlBlob->valid()) {
-        std::cerr << "WARNING DtedFile::loadFile() Parsed AccuracyDescriptionRecord is NOT valid. Failed to load file: " << _filename << std::endl;
+        std::cerr << "WARNING DtedFile::loadFile() Parsed AccuracyDescriptionRecord is NOT valid. Failed to load file: "
+                  << _filename << std::endl;
         return;
     }
     _acc = AccuracyDescriptionRecord(*accBlob);
@@ -150,7 +150,7 @@ bool DtedFile::loadElevations(const std::unique_ptr<std::byte[]>& data)
 
         std::byte* recordData = data.get() + columnOffset + COLUMN_HEADER_BLOB_SIZE;
 
-        Vec8us signMask(0b0111'1111'1111'1111); // Mask to keep lower 15 bits
+        Vec8us signMask(0b0111'1111'1111'1111);     // Mask to keep lower 15 bits
         Vec8us negativeMask(0b1000'0000'0000'0000); // Mask to detect sign bit
         uint32_t evenRowUpperLimit = (_rowCount / 8) * 8;
         for (uint32_t lat = 0; lat < evenRowUpperLimit; lat += 8) {
@@ -171,20 +171,15 @@ bool DtedFile::loadElevations(const std::unique_ptr<std::byte[]>& data)
             Vec8us convertedVals = magnitudes - (signBits << 1);
 
             // Save out of SIMD register into _elevations
-            _mm_storeu_si128(
-                reinterpret_cast<__m128i*>(&_elevations[lon * _rowCount + lat]),
-                convertedVals
-            );
+            _mm_storeu_si128(reinterpret_cast<__m128i*>(&_elevations[lon * _rowCount + lat]), convertedVals);
         }
 
         uint32_t leftoverCount = _rowCount % 8;
-        for (uint32_t lat = _rowCount - leftoverCount; lat < _rowCount; lat++) {
-            
-        }
+        for (uint32_t lat = _rowCount - leftoverCount; lat < _rowCount; lat++) {}
 
-        //for (uint32_t lat = 0; lat < _rowCount; lat++) {
-        //    uint8_t high = (uint8_t)(recordData + lat * 2)[0];
-        //    uint8_t low =  (uint8_t)(recordData + lat * 2)[1];
+        // for (uint32_t lat = 0; lat < _rowCount; lat++) {
+        //     uint8_t high = (uint8_t)(recordData + lat * 2)[0];
+        //     uint8_t low =  (uint8_t)(recordData + lat * 2)[1];
 
         //    checksum += (uint64_t)high + (uint64_t)low;
 
@@ -194,11 +189,12 @@ bool DtedFile::loadElevations(const std::unique_ptr<std::byte[]>& data)
         //    high = high & 0b0111'1111;
         //    int8_t negative = -1 * (highestBit >> 7) + 1 * (0b1000'0000 - highestBit);
 
-        //    _elevations[lon * _rowCount + lat] = ((static_cast<int16_t>(high << 8)) + static_cast<int16_t>(low)) * negative;
+        //    _elevations[lon * _rowCount + lat] = ((static_cast<int16_t>(high << 8)) + static_cast<int16_t>(low)) *
+        //    negative;
         //}
     }
 
     return retVal;
 }
 
-} // End dted namespace
+} // namespace dted

@@ -16,7 +16,8 @@ const std::string file1 = "data/n39_w084_1arc_v3.dt2";
 const std::string file2 = "data/n39_w085_1arc_v3.dt2";
 Threadpool threadpool(32);
 
-const std::vector<std::string> getDtedFileDataLines(const DtedFile& file) {
+const std::vector<std::string> getDtedFileDataLines(const DtedFile& file)
+{
     std::vector<std::string> lines;
 
     return lines;
@@ -28,16 +29,14 @@ static void dropCallback(GLFWwindow* window, int count, const char** paths)
 {
     DtedFile newFile(paths[0]);
     newFile.loadFile(true);
-    if (newFile.valid()) {
-        newTextData = getDtedFileDataLines(newFile);
-    }
+    if (newFile.valid()) { newTextData = getDtedFileDataLines(newFile); }
     else {
-        newTextData = { newFile.filename(), "Not a valid Dted File!"};
+        newTextData = {newFile.filename(), "Not a valid Dted File!"};
     }
     loadNewFile = true;
 }
 
-static void render(GLFWwindow* window) 
+static void render(GLFWwindow* window)
 {
     glfwMakeContextCurrent(window);
 
@@ -66,7 +65,8 @@ static void render(GLFWwindow* window)
         // Create window which fills viewport
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(io.DisplaySize);
-        ImGui::Begin("Main Window", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+        ImGui::Begin(
+            "Main Window", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 
         for (const auto& line : textData) {
             ImGui::Text("%s", line.c_str());
@@ -96,7 +96,7 @@ int main()
         {
             cpputils::ScopePrintTimer<std::chrono::steady_clock, std::chrono::milliseconds> timer("Time(ms): ");
             dtedFile1.loadFile(false);
-            //dtedFile2.loadFile(false);
+            // dtedFile2.loadFile(false);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
@@ -114,7 +114,7 @@ int main()
     appConfig.vsyncEnable = true;
     appConfig.glVersionMajor = 4;
     appConfig.glVersionMinor = 6;
-    appConfig.glslVersionString; // leave default
+    appConfig.dearImguiGlslVersionString; // leave default
     appConfig.customDrawFunc = render;
     appConfig.customKeyCallback = nullptr;
     appConfig.customErrorCallback = nullptr;
