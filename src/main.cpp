@@ -11,6 +11,7 @@ using dted::DtedFile;
 
 #include <iostream>
 #include <vector>
+#include <iomanip>
 
 const std::string file1 = "data/n39_w084_1arc_v3.dt2";
 const std::string file2 = "data/n39_w085_1arc_v3.dt2";
@@ -28,7 +29,7 @@ std::vector<std::string> newTextData;
 static void dropCallback(GLFWwindow* window, int count, const char** paths)
 {
     DtedFile newFile(paths[0]);
-    newFile.loadFile(DtedFile::LoadStrategy::WINDOWS_MEMORY_MAP);
+    newFile.loadFile(DtedFile::LoadStrategy::STL_IFSTREAM);
     if (newFile.valid()) {
         newTextData = getDtedFileDataLines(newFile);
     }
@@ -46,7 +47,7 @@ static void render(GLFWwindow* window)
     DtedFile dtedFile1(file1);
     DtedFile dtedFile2(file2);
     for (int i = 0; i < 100; i++) {
-        dtedFile1.loadFile(DtedFile::LoadStrategy::WINDOWS_MEMORY_MAP);
+        dtedFile1.loadFile(DtedFile::LoadStrategy::STL_IFSTREAM);
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
     std::vector<std::string> textData = getDtedFileDataLines(dtedFile1);
@@ -96,60 +97,85 @@ int main()
     DtedFile dtedFile(file1);
 
     std::cout << "Average over " << ITERS << " iterations:" << std::endl;
+    std::cout << std::fixed << std::setprecision(3);
+
+    std::cout << std::endl << "CACHE DEPENDENT" << std::endl;
 
     timer.reset();
     for (int i = 0; i < ITERS; i++) {
         dtedFile.loadFile(DtedFile::LoadStrategy::STL_IFSTREAM);
     }
-    double ifstreamMs = (double)timer.getElapsedTimeMs() / ITERS;
-    std::cout << "ifstream: " << ifstreamMs << std::endl;
+    double ifstreamTime = (double)timer.getElapsedTimeMs() / ITERS;
+    std::cout << std::left << std::setw(60) << "ifstream: " << std::right << std::setw(12) << ifstreamTime << "ms"
+              << std::endl;
 
     timer.reset();
     for (int i = 0; i < ITERS; i++) {
-        dtedFile.loadFile(DtedFile::LoadStrategy::WINDOWS_MEMORY_MAP);
+        dtedFile.loadFile(DtedFile::LoadStrategy::WINDOWS_MEMORY_MAP_BUFFERED_SEQUENTIAL_SCAN);
     }
-    double windowsMemoryMapTime = (double)timer.getElapsedTimeMs() / ITERS;
-    std::cout << "windows memory map: " << windowsMemoryMapTime << std::endl;
+    double windowsMemoryMapBufferedSequentialScanTime = (double)timer.getElapsedTimeMs() / ITERS;
+    std::cout << std::left << std::setw(60) << "windows memory map buffered sequential scan: " << std::right
+              << std::setw(12) << windowsMemoryMapBufferedSequentialScanTime << "ms" << std::endl;
 
     timer.reset();
     for (int i = 0; i < ITERS; i++) {
-        dtedFile.loadFile(DtedFile::LoadStrategy::WINDOWS_MEMORY_MAP_PREFETCH);
+        dtedFile.loadFile(DtedFile::LoadStrategy::WINDOWS_MEMORY_MAP_BUFFERED_SEQUENTIAL_SCAN_PREFETCH);
     }
-    double windowsMemoryMapPrefetchTime = (double)timer.getElapsedTimeMs() / ITERS;
-    std::cout << "windows memory map (prefetch): " << windowsMemoryMapPrefetchTime << std::endl;
+    double windowsMemoryMapBufferedSequentialScanPrefetchTime = (double)timer.getElapsedTimeMs() / ITERS;
+    std::cout << std::left << std::setw(60) << "windows memory map buffered sequential scan (prefetch): " << std::right
+              << std::setw(12) << windowsMemoryMapBufferedSequentialScanPrefetchTime << "ms" << std::endl;
+
+    std::cout << std::endl << "CACHE INDEPENDENT" << std::endl;
 
     timer.reset();
     for (int i = 0; i < ITERS; i++) {
-        dtedFile.loadFile(DtedFile::LoadStrategy::WINDOWS_DIRECT_READ);
+        dtedFile.loadFile(DtedFile::LoadStrategy::WINDOWS_MEMORY_MAP_NON_BUFFERED);
+    }
+    double windowsMemmoryMapNonBufferedTime = (double)timer.getElapsedTimeMs() / ITERS;
+    std::cout << std::left << std::setw(60) << "windows memory map non-buffered: " << std::right << std::setw(12)
+              << windowsMemmoryMapNonBufferedTime << "ms" << std::endl;
+
+    timer.reset();
+    for (int i = 0; i < ITERS; i++) {
+        dtedFile.loadFile(DtedFile::LoadStrategy::WINDOWS_MEMORY_MAP_NON_BUFFERED_PREFETCH);
+    }
+    double windowsMemmoryMapNonBufferedPrefetchTime = (double)timer.getElapsedTimeMs() / ITERS;
+    std::cout << std::left << std::setw(60) << "windows memory mapped non-buffered (prefetch): " << std::right
+              << std::setw(12) << windowsMemmoryMapNonBufferedPrefetchTime << "ms" << std::endl;
+
+    timer.reset();
+    for (int i = 0; i < ITERS; i++) {
+        dtedFile.loadFile(DtedFile::LoadStrategy::WINDOWS_DIRECT_READ_NON_BUFFERED);
     }
     double windowsDirectReadTime = (double)timer.getElapsedTimeMs() / ITERS;
-    std::cout << "windows direct read: " << windowsDirectReadTime << std::endl;
+    std::cout << std::left << std::setw(60) << "windows direct read non-buffered: " << std::right << std::setw(12)
+              << windowsDirectReadTime << "ms" << std::endl;
 
-    //OpenGLApplication::ApplicationConfig appConfig = {};
-    //appConfig.windowName = "Dteditor";
-    //appConfig.windowInitWidth = 600;
-    //appConfig.windowInitHeight = 1000;
-    //appConfig.windowPosX = 200;
-    //appConfig.windowPosY = 200;
-    //appConfig.windowBorderless = false;
-    //appConfig.windowResizeEnable = true;
-    //appConfig.windowDarkmode = true;
-    //appConfig.windowRounded = true;
-    //appConfig.vsyncEnable = true;
-    //appConfig.glVersionMajor = 4;
-    //appConfig.glVersionMinor = 6;
-    //appConfig.dearImguiGlslVersionString; // leave default
-    //appConfig.customDrawFunc = render;
-    //appConfig.customKeyCallback = nullptr;
-    //appConfig.customErrorCallback = nullptr;
-    //appConfig.customDropCallback = dropCallback;
+    // OpenGLApplication::ApplicationConfig appConfig = {};
+    // appConfig.windowName = "Dteditor";
+    // appConfig.windowInitWidth = 600;
+    // appConfig.windowInitHeight = 1000;
+    // appConfig.windowPosX = 200;
+    // appConfig.windowPosY = 200;
+    // appConfig.windowBorderless = false;
+    // appConfig.windowResizeEnable = true;
+    // appConfig.windowDarkmode = true;
+    // appConfig.windowRounded = true;
+    // appConfig.vsyncEnable = true;
+    // appConfig.glVersionMajor = 4;
+    // appConfig.glVersionMinor = 6;
+    // appConfig.dearImguiGlslVersionString; // leave default
+    // appConfig.customDrawFunc = render;
+    // appConfig.customKeyCallback = nullptr;
+    // appConfig.customErrorCallback = nullptr;
+    // appConfig.customDropCallback = dropCallback;
 
-    //try {
-    //    OpenGLApplication app(appConfig);
-    //}
-    //catch (const std::exception& e) {
-    //    std::cout << e.what() << std::endl;
-    //}
+    // try {
+    //     OpenGLApplication app(appConfig);
+    // }
+    // catch (const std::exception& e) {
+    //     std::cout << e.what() << std::endl;
+    // }
 
     return EXIT_SUCCESS;
 }

@@ -96,9 +96,126 @@ void DtedFile::loadFile(const LoadStrategy strategy)
             break;
         }
         //////////////////////////////////////////////////
-        // WINDOWS_MEMORY_MAP
+        // WINDOWS_MEMORY_MAP_BUFFERED_SEQUENTIAL_SCAN
         //////////////////////////////////////////////////
-        case LoadStrategy::WINDOWS_MEMORY_MAP: {
+        case LoadStrategy::WINDOWS_MEMORY_MAP_BUFFERED_SEQUENTIAL_SCAN: {
+            HANDLE hFile = CreateFileA(
+                _filename.c_str(),         // lpFileName,
+                GENERIC_READ,              // dwDesiredAccess,
+                FILE_SHARE_READ,           // dwShareMode,
+                NULL,                      // lpSecurityAttributes,
+                OPEN_EXISTING,             // dwCreationDisposition,
+                FILE_FLAG_SEQUENTIAL_SCAN, // dwFlagsAndAttribute,
+                NULL                       // hTemplateFile
+            );
+
+            if (hFile == NULL) {
+                std::cout << "ERROR: Could not open file " << _filename << std::endl;
+                return;
+            }
+
+            HANDLE hFileMapping = CreateFileMappingA(
+                hFile,         // hFile,
+                NULL,          // lpFileMappingAttributes,
+                PAGE_READONLY, // flProtect,
+                0,             // dwMaximumSizeHigh,
+                0,             // dwMaximumSizeLow,
+                NULL           // lpName
+            );
+
+            if (hFileMapping == NULL) {
+                std::cout << "ERROR: Could not map view of file " << _filename << std::endl;
+                CloseHandle(hFile);
+                return;
+            }
+
+            LPVOID lpData = MapViewOfFile(
+                hFileMapping,  // hFileMappingObject,
+                FILE_MAP_READ, // dwDesiredAccess,
+                0,             // dwFileOffsetHigh,
+                0,             // dwFileOffsetLow,
+                0              // dwNumberOfBytesToMap
+            );
+
+            if (lpData != nullptr) {
+                _valid = parseFile((std::byte*)lpData);
+            }
+
+            UnmapViewOfFile(lpData);
+            CloseHandle(hFileMapping);
+            CloseHandle(hFile);
+            break;
+        }
+        //////////////////////////////////////////////////
+        // WINDOWS_MEMORY_MAP_BUFFERED_SEQUENTIAL_SCAN_PREFETCH
+        //////////////////////////////////////////////////
+        case LoadStrategy::WINDOWS_MEMORY_MAP_BUFFERED_SEQUENTIAL_SCAN_PREFETCH: {
+            HANDLE hFile = CreateFileA(
+                _filename.c_str(),         // lpFileName,
+                GENERIC_READ,              // dwDesiredAccess,
+                FILE_SHARE_READ,           // dwShareMode,
+                NULL,                      // lpSecurityAttributes,
+                OPEN_EXISTING,             // dwCreationDisposition,
+                FILE_FLAG_SEQUENTIAL_SCAN, // dwFlagsAndAttribute,
+                NULL                       // hTemplateFile
+            );
+
+            if (hFile == NULL) {
+                std::cout << "ERROR: Could not open file " << _filename << std::endl;
+                return;
+            }
+
+            HANDLE hFileMapping = CreateFileMappingA(
+                hFile,         // hFile,
+                NULL,          // lpFileMappingAttributes,
+                PAGE_READONLY, // flProtect,
+                0,             // dwMaximumSizeHigh,
+                0,             // dwMaximumSizeLow,
+                NULL           // lpName
+            );
+
+            if (hFileMapping == NULL) {
+                std::cout << "ERROR: Could not map view of file " << _filename << std::endl;
+                CloseHandle(hFile);
+                return;
+            }
+
+            LPVOID lpData = MapViewOfFile(
+                hFileMapping,  // hFileMappingObject,
+                FILE_MAP_READ, // dwDesiredAccess,
+                0,             // dwFileOffsetHigh,
+                0,             // dwFileOffsetLow,
+                0              // dwNumberOfBytesToMap
+            );
+
+            // Get file size
+            LARGE_INTEGER fileSize;
+            if (!GetFileSizeEx(hFile, &fileSize)) {
+                std::cerr << "ERROR: Could not get file size" << std::endl;
+                UnmapViewOfFile(lpData);
+                CloseHandle(hFileMapping);
+                CloseHandle(hFile);
+                return;
+            }
+
+            WIN32_MEMORY_RANGE_ENTRY range;
+            range.VirtualAddress = lpData;
+            range.NumberOfBytes = fileSize.QuadPart;
+            PrefetchVirtualMemory(GetCurrentProcess(), 1, &range, 0);
+
+            if (lpData != nullptr) {
+                _valid = parseFile((std::byte*)lpData);
+            }
+
+            UnmapViewOfFile(lpData);
+            CloseHandle(hFileMapping);
+            CloseHandle(hFile);
+            break;
+        }
+        //////////////////////////////////////////////////
+        // WINDOWS_MEMORY_MAP_NON_BUFFERED
+        //////////////////////////////////////////////////
+        case LoadStrategy::WINDOWS_MEMORY_MAP_NON_BUFFERED: {
             HANDLE hFile = CreateFileA(
                 _filename.c_str(),      // lpFileName,
                 GENERIC_READ,           // dwDesiredAccess,
@@ -147,9 +264,9 @@ void DtedFile::loadFile(const LoadStrategy strategy)
             break;
         }
         //////////////////////////////////////////////////
-        // WINDOWS_MEMORY_MAP_PREFETCH
+        // WINDOWS_MEMORY_MAP_NON_BUFFERED_PREFETCH
         //////////////////////////////////////////////////
-        case LoadStrategy::WINDOWS_MEMORY_MAP_PREFETCH: {
+        case LoadStrategy::WINDOWS_MEMORY_MAP_NON_BUFFERED_PREFETCH: {
             HANDLE hFile = CreateFileA(
                 _filename.c_str(),      // lpFileName,
                 GENERIC_READ,           // dwDesiredAccess,
@@ -212,7 +329,10 @@ void DtedFile::loadFile(const LoadStrategy strategy)
             CloseHandle(hFile);
             break;
         }
-        case LoadStrategy::WINDOWS_DIRECT_READ: {
+        //////////////////////////////////////////////////
+        // WINDOWS_DIRECT_READ_NON_BUFFERED
+        //////////////////////////////////////////////////
+        case LoadStrategy::WINDOWS_DIRECT_READ_NON_BUFFERED: {
             HANDLE hFile = CreateFileA(
                 _filename.c_str(),      // lpFileName,
                 GENERIC_READ,           // dwDesiredAccess,
@@ -236,37 +356,37 @@ void DtedFile::loadFile(const LoadStrategy strategy)
                 return;
             }
 
-             SYSTEM_INFO sysInfo;
-             GetSystemInfo(&sysInfo);
-             size_t alignment = sysInfo.dwPageSize; // Typically 4096
+            SYSTEM_INFO sysInfo;
+            GetSystemInfo(&sysInfo);
+            size_t alignment = sysInfo.dwPageSize; // Typically 4096
 
-             // Adjust to be a multiple of the page size
-             size_t adjustedSize = fileSize.QuadPart + (sysInfo.dwPageSize - (fileSize.QuadPart % sysInfo.dwPageSize));
+            // Adjust to be a multiple of the page size
+            size_t adjustedSize = fileSize.QuadPart + (sysInfo.dwPageSize - (fileSize.QuadPart % sysInfo.dwPageSize));
 
-             void* buffer = _aligned_malloc(adjustedSize, alignment);
-             if (!buffer) {
-                 std::cerr << "ERROR: Could not allocate buffer" << std::endl;
-                 CloseHandle(hFile);
-                 return;
-             }
+            void* buffer = _aligned_malloc(adjustedSize, alignment);
+            if (!buffer) {
+                std::cerr << "ERROR: Could not allocate buffer" << std::endl;
+                CloseHandle(hFile);
+                return;
+            }
 
             // Read file data into buffer
-             DWORD bytesRead = 0;
-             BOOL result = ReadFile(hFile, buffer, adjustedSize, &bytesRead, NULL);
+            DWORD bytesRead = 0;
+            BOOL result = ReadFile(hFile, buffer, adjustedSize, &bytesRead, NULL);
 
-             if (!result) {
-                 DWORD err = GetLastError();
-                 if (err == ERROR_IO_PENDING) {
-                     // Wait for asynchronous read to complete
-                     //GetOverlappedResult(hFile, &overlapped, &bytesRead, TRUE);
-                 }
-                 else {
-                     std::cerr << "ERROR: ReadFile failed with code " << err << std::endl;
-                     _aligned_free(buffer);
-                     CloseHandle(hFile);
-                     return;
-                 }
-             }
+            if (!result) {
+                DWORD err = GetLastError();
+                if (err == ERROR_IO_PENDING) {
+                    // Wait for asynchronous read to complete
+                    // GetOverlappedResult(hFile, &overlapped, &bytesRead, TRUE);
+                }
+                else {
+                    std::cerr << "ERROR: ReadFile failed with code " << err << std::endl;
+                    _aligned_free(buffer);
+                    CloseHandle(hFile);
+                    return;
+                }
+            }
 
             if (buffer != nullptr) {
                 _valid = parseFile((std::byte*)buffer);
