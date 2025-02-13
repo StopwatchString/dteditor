@@ -13,6 +13,14 @@ namespace dted {
 class DtedFile
 {
 public:
+    enum class LoadStrategy
+    {
+        STL_IFSTREAM,
+        WINDOWS_MEMORY_MAP,
+        WINDOWS_MEMORY_MAP_PREFETCH,
+        WINDOWS_DIRECT_READ
+    };
+
     DtedFile(const std::string& file);
     ~DtedFile();
 
@@ -27,13 +35,14 @@ public:
     const DataSetIdentification& dsi() const { return _dsi; }
     const AccuracyDescriptionRecord& acc() const { return _acc; }
 
-    void loadFile(bool printLoadStats = false);
+    void loadFile(const LoadStrategy strategy);
 
     bool valid() const { return _valid; }
     std::string filename() const { return _filename; }
 
 private:
-    bool loadElevations(const std::unique_ptr<std::byte[]>& data);
+    bool parseFile(const std::byte* data);
+    bool loadElevations(const std::byte* data);
 
     bool _valid;
     int16_t* _elevations;
@@ -47,6 +56,6 @@ private:
     std::string _filename;
 };
 
-} // End dted namespace
+} // namespace dted
 
 #endif

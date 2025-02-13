@@ -4,6 +4,10 @@
 
 #include "vectorclass.h"
 
+#define _WIN32_WINNT 0x0602 // Windows 8+
+#include <windows.h>
+#include <memoryapi.h>
+
 #include <iostream>
 #include <fstream>
 #include <thread>
@@ -58,76 +62,266 @@ DtedFile& DtedFile::operator=(DtedFile&& other) noexcept
 //-----------------------------------------------
 // loadFile()
 //-----------------------------------------------
-void DtedFile::loadFile(bool printLoadStats)
+void DtedFile::loadFile(const LoadStrategy strategy)
 {
-    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+    switch (strategy) {
+        //////////////////////////////////////////////////
+        // STL_IFSTREAM
+        //////////////////////////////////////////////////
+        case LoadStrategy::STL_IFSTREAM: {
+            // Get file size
+            std::ifstream file(_filename, std::ios::binary | std::ios::ate);
+            if (!file.is_open()) {
+                std::cerr << "ERROR Cannot open file " << _filename << std::endl;
+                return;
+            }
+            std::streampos fileSize = file.tellg();
 
-    // Get file size
-    std::ifstream file(_filename, std::ios::binary | std::ios::ate);
-    if (!file.is_open()) {
-        std::cerr << "ERROR Cannot open file " << _filename << std::endl;
-        return;
+            // Create heap block sized to the file
+            std::unique_ptr<std::byte[]> data = std::make_unique<std::byte[]>(fileSize);
+
+            // Go to beginning of file, then read into heap block
+            file.seekg(0, std::ios::beg);
+            if (!file.good()) {
+                std::cerr << "ERROR Cannot seek to header!" << std::endl;
+                return;
+            }
+            if (!file.read(reinterpret_cast<char*>(data.get()), fileSize)) {
+                std::cerr << "ERROR Failed to pull entire file into heap block." << std::endl;
+            }
+
+            file.close();
+
+            _valid = parseFile(data.get());
+            break;
+        }
+        //////////////////////////////////////////////////
+        // WINDOWS_MEMORY_MAP
+        //////////////////////////////////////////////////
+        case LoadStrategy::WINDOWS_MEMORY_MAP: {
+            HANDLE hFile = CreateFileA(
+                _filename.c_str(),      // lpFileName,
+                GENERIC_READ,           // dwDesiredAccess,
+                FILE_SHARE_READ,        // dwShareMode,
+                NULL,                   // lpSecurityAttributes,
+                OPEN_EXISTING,          // dwCreationDisposition,
+                FILE_FLAG_NO_BUFFERING, // dwFlagsAndAttribute,
+                NULL                    // hTemplateFile
+            );
+
+            if (hFile == NULL) {
+                std::cout << "ERROR: Could not open file " << _filename << std::endl;
+                return;
+            }
+
+            HANDLE hFileMapping = CreateFileMappingA(
+                hFile,         // hFile,
+                NULL,          // lpFileMappingAttributes,
+                PAGE_READONLY, // flProtect,
+                0,             // dwMaximumSizeHigh,
+                0,             // dwMaximumSizeLow,
+                NULL           // lpName
+            );
+
+            if (hFileMapping == NULL) {
+                std::cout << "ERROR: Could not map view of file " << _filename << std::endl;
+                CloseHandle(hFile);
+                return;
+            }
+
+            LPVOID lpData = MapViewOfFile(
+                hFileMapping,  // hFileMappingObject,
+                FILE_MAP_READ, // dwDesiredAccess,
+                0,             // dwFileOffsetHigh,
+                0,             // dwFileOffsetLow,
+                0              // dwNumberOfBytesToMap
+            );
+
+            if (lpData != nullptr) {
+                _valid = parseFile((std::byte*)lpData);
+            }
+
+            UnmapViewOfFile(lpData);
+            CloseHandle(hFileMapping);
+            CloseHandle(hFile);
+            break;
+        }
+        //////////////////////////////////////////////////
+        // WINDOWS_MEMORY_MAP_PREFETCH
+        //////////////////////////////////////////////////
+        case LoadStrategy::WINDOWS_MEMORY_MAP_PREFETCH: {
+            HANDLE hFile = CreateFileA(
+                _filename.c_str(),      // lpFileName,
+                GENERIC_READ,           // dwDesiredAccess,
+                FILE_SHARE_READ,        // dwShareMode,
+                NULL,                   // lpSecurityAttributes,
+                OPEN_EXISTING,          // dwCreationDisposition,
+                FILE_FLAG_NO_BUFFERING, // dwFlagsAndAttribute,
+                NULL                    // hTemplateFile
+            );
+
+            if (hFile == NULL) {
+                std::cout << "ERROR: Could not open file " << _filename << std::endl;
+                return;
+            }
+
+            HANDLE hFileMapping = CreateFileMappingA(
+                hFile,         // hFile,
+                NULL,          // lpFileMappingAttributes,
+                PAGE_READONLY, // flProtect,
+                0,             // dwMaximumSizeHigh,
+                0,             // dwMaximumSizeLow,
+                NULL           // lpName
+            );
+
+            if (hFileMapping == NULL) {
+                std::cout << "ERROR: Could not map view of file " << _filename << std::endl;
+                CloseHandle(hFile);
+                return;
+            }
+
+            LPVOID lpData = MapViewOfFile(
+                hFileMapping,  // hFileMappingObject,
+                FILE_MAP_READ, // dwDesiredAccess,
+                0,             // dwFileOffsetHigh,
+                0,             // dwFileOffsetLow,
+                0              // dwNumberOfBytesToMap
+            );
+
+            // Get file size
+            LARGE_INTEGER fileSize;
+            if (!GetFileSizeEx(hFile, &fileSize)) {
+                std::cerr << "ERROR: Could not get file size" << std::endl;
+                UnmapViewOfFile(lpData);
+                CloseHandle(hFileMapping);
+                CloseHandle(hFile);
+                return;
+            }
+
+            WIN32_MEMORY_RANGE_ENTRY range;
+            range.VirtualAddress = lpData;
+            range.NumberOfBytes = fileSize.QuadPart;
+            PrefetchVirtualMemory(GetCurrentProcess(), 1, &range, 0);
+
+            if (lpData != nullptr) {
+                _valid = parseFile((std::byte*)lpData);
+            }
+
+            UnmapViewOfFile(lpData);
+            CloseHandle(hFileMapping);
+            CloseHandle(hFile);
+            break;
+        }
+        case LoadStrategy::WINDOWS_DIRECT_READ: {
+            HANDLE hFile = CreateFileA(
+                _filename.c_str(),      // lpFileName,
+                GENERIC_READ,           // dwDesiredAccess,
+                FILE_SHARE_READ,        // dwShareMode,
+                NULL,                   // lpSecurityAttributes,
+                OPEN_EXISTING,          // dwCreationDisposition,
+                FILE_FLAG_NO_BUFFERING, // dwFlagsAndAttribute,
+                NULL                    // hTemplateFile
+            );
+
+            if (hFile == NULL) {
+                std::cout << "ERROR: Could not open file " << _filename << std::endl;
+                return;
+            }
+
+            // Get file size
+            LARGE_INTEGER fileSize;
+            if (!GetFileSizeEx(hFile, &fileSize)) {
+                std::cerr << "ERROR: Could not get file size" << std::endl;
+                CloseHandle(hFile);
+                return;
+            }
+
+             SYSTEM_INFO sysInfo;
+             GetSystemInfo(&sysInfo);
+             size_t alignment = sysInfo.dwPageSize; // Typically 4096
+
+             // Adjust to be a multiple of the page size
+             size_t adjustedSize = fileSize.QuadPart + (sysInfo.dwPageSize - (fileSize.QuadPart % sysInfo.dwPageSize));
+
+             void* buffer = _aligned_malloc(adjustedSize, alignment);
+             if (!buffer) {
+                 std::cerr << "ERROR: Could not allocate buffer" << std::endl;
+                 CloseHandle(hFile);
+                 return;
+             }
+
+            // Read file data into buffer
+             DWORD bytesRead = 0;
+             BOOL result = ReadFile(hFile, buffer, adjustedSize, &bytesRead, NULL);
+
+             if (!result) {
+                 DWORD err = GetLastError();
+                 if (err == ERROR_IO_PENDING) {
+                     // Wait for asynchronous read to complete
+                     //GetOverlappedResult(hFile, &overlapped, &bytesRead, TRUE);
+                 }
+                 else {
+                     std::cerr << "ERROR: ReadFile failed with code " << err << std::endl;
+                     _aligned_free(buffer);
+                     CloseHandle(hFile);
+                     return;
+                 }
+             }
+
+            if (buffer != nullptr) {
+                _valid = parseFile((std::byte*)buffer);
+            }
+
+            CloseHandle(hFile);
+            break;
+        }
     }
-    std::streampos fileSize = file.tellg();
+}
 
-    // Create heap block sized to the file
-    std::unique_ptr<std::byte[]> data = std::make_unique<std::byte[]>(fileSize);
-
-    // Go to beginning of file, then read into heap block
-    file.seekg(0, std::ios::beg);
-    if (!file.good()) {
-        std::cerr << "ERROR Cannot seek to header!" << std::endl;
-        return;
-    }
-    if (!file.read(reinterpret_cast<char*>(data.get()), fileSize)) {
-        std::cerr << "ERROR Failed to pull entire file into heap block." << std::endl;
-    }
-
-    file.close();
-
-    UserHeaderLabelBlob* uhlBlob = reinterpret_cast<UserHeaderLabelBlob*>(data.get() + USER_HEADER_LABEL_BLOB_OFFSET);
+//-----------------------------------------------
+// parseFile()
+//-----------------------------------------------
+bool DtedFile::parseFile(const std::byte* data)
+{
+    const UserHeaderLabelBlob* uhlBlob
+        = reinterpret_cast<const UserHeaderLabelBlob*>(data + USER_HEADER_LABEL_BLOB_OFFSET);
     if (!uhlBlob->valid()) {
         std::cerr << "WARNING DtedFile::loadFile() Parsed UserHeaderLabel is NOT valid. Failed to load file: "
                   << _filename << std::endl;
-        return;
+        return false;
     }
     _uhl = UserHeaderLabel(*uhlBlob);
 
-    DataSetIdentificationBlob* dsiBlob
-        = reinterpret_cast<DataSetIdentificationBlob*>(data.get() + DATA_SET_IDENTIFICATION_BLOB_OFFSET);
+    const DataSetIdentificationBlob* dsiBlob
+        = reinterpret_cast<const DataSetIdentificationBlob*>(data + DATA_SET_IDENTIFICATION_BLOB_OFFSET);
     if (!uhlBlob->valid()) {
         std::cerr << "WARNING DtedFile::loadFile() Parsed DataSetIdentification is NOT valid. Failed to load file: "
                   << _filename << std::endl;
-        return;
+        return false;
     }
     _dsi = DataSetIdentification(*dsiBlob);
 
-    AccuracyDescriptionRecordBlob* accBlob
-        = reinterpret_cast<AccuracyDescriptionRecordBlob*>(data.get() + ACCURACY_DESCRIPTION_RECORD_BLOB_OFFSET);
+    const AccuracyDescriptionRecordBlob* accBlob
+        = reinterpret_cast<const AccuracyDescriptionRecordBlob*>(data + ACCURACY_DESCRIPTION_RECORD_BLOB_OFFSET);
     if (!uhlBlob->valid()) {
         std::cerr << "WARNING DtedFile::loadFile() Parsed AccuracyDescriptionRecord is NOT valid. Failed to load file: "
                   << _filename << std::endl;
-        return;
+        return false;
     }
     _acc = AccuracyDescriptionRecord(*accBlob);
 
     _columnCount = _dsi.numberLatitudeLines;
     _rowCount = _dsi.numberLongitudeLines;
 
-    _valid = loadElevations(data);
+    bool loadedElevations = loadElevations(data);
 
-    if (printLoadStats) {
-        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-        std::chrono::steady_clock::duration elapsedTime = end - start;
-        std::chrono::milliseconds elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(elapsedTime);
-        std::cout << "Time to load " << _filename << ": " << elapsedMs.count() << "ms" << std::endl;
-    }
+    return loadedElevations;
 }
 
 //-----------------------------------------------
 // loadElevations()
 //-----------------------------------------------
-bool DtedFile::loadElevations(const std::unique_ptr<std::byte[]>& data)
+bool DtedFile::loadElevations(const std::byte* data)
 {
     bool retVal = false;
 
@@ -143,12 +337,12 @@ bool DtedFile::loadElevations(const std::unique_ptr<std::byte[]>& data)
         uint64_t checksum = 0;
 
         uint32_t columnOffset = baseOffset + lon * recordSize;
-        ColumnHeaderBlob* header = reinterpret_cast<ColumnHeaderBlob*>(data.get() + columnOffset);
+        const ColumnHeaderBlob* header = reinterpret_cast<const ColumnHeaderBlob*>(data + columnOffset);
         for (uint32_t i = 0; i < COLUMN_HEADER_BLOB_SIZE; i++) {
-            checksum += *(uint8_t*)(data.get() + columnOffset + i);
+            checksum += *(uint8_t*)(data + columnOffset + i);
         }
 
-        std::byte* recordData = data.get() + columnOffset + COLUMN_HEADER_BLOB_SIZE;
+        const std::byte* recordData = data + columnOffset + COLUMN_HEADER_BLOB_SIZE;
 
         Vec8us signMask(0b0111'1111'1111'1111);     // Mask to keep lower 15 bits
         Vec8us negativeMask(0b1000'0000'0000'0000); // Mask to detect sign bit
@@ -174,8 +368,8 @@ bool DtedFile::loadElevations(const std::unique_ptr<std::byte[]>& data)
             _mm_storeu_si128(reinterpret_cast<__m128i*>(&_elevations[lon * _rowCount + lat]), convertedVals);
         }
 
-        uint32_t leftoverCount = _rowCount % 8;
-        for (uint32_t lat = _rowCount - leftoverCount; lat < _rowCount; lat++) {}
+        // uint32_t leftoverCount = _rowCount % 8;
+        // for (uint32_t lat = _rowCount - leftoverCount; lat < _rowCount; lat++) {}
 
         // for (uint32_t lat = 0; lat < _rowCount; lat++) {
         //     uint8_t high = (uint8_t)(recordData + lat * 2)[0];

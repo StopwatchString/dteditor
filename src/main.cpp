@@ -28,7 +28,7 @@ std::vector<std::string> newTextData;
 static void dropCallback(GLFWwindow* window, int count, const char** paths)
 {
     DtedFile newFile(paths[0]);
-    newFile.loadFile(true);
+    newFile.loadFile(DtedFile::LoadStrategy::WINDOWS_MEMORY_MAP);
     if (newFile.valid()) {
         newTextData = getDtedFileDataLines(newFile);
     }
@@ -46,7 +46,7 @@ static void render(GLFWwindow* window)
     DtedFile dtedFile1(file1);
     DtedFile dtedFile2(file2);
     for (int i = 0; i < 100; i++) {
-        dtedFile1.loadFile(true);
+        dtedFile1.loadFile(DtedFile::LoadStrategy::WINDOWS_MEMORY_MAP);
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
     std::vector<std::string> textData = getDtedFileDataLines(dtedFile1);
@@ -91,43 +91,65 @@ static void render(GLFWwindow* window)
 
 int main()
 {
-    // Text data
-    DtedFile dtedFile1(file1);
-    DtedFile dtedFile2(file2);
-    for (int i = 0; i < 100; i++) {
-        {
-            cpputils::ScopePrintTimer<std::chrono::steady_clock, std::chrono::milliseconds> timer("Time(ms): ");
-            dtedFile1.loadFile(false);
-            // dtedFile2.loadFile(false);
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    }
+    static const size_t ITERS = 100;
+    cpputils::ResettableTimer<std::chrono::steady_clock> timer;
+    DtedFile dtedFile(file1);
 
-    OpenGLApplication::ApplicationConfig appConfig = {};
-    appConfig.windowName = "Dteditor";
-    appConfig.windowInitWidth = 600;
-    appConfig.windowInitHeight = 1000;
-    appConfig.windowPosX = 200;
-    appConfig.windowPosY = 200;
-    appConfig.windowBorderless = false;
-    appConfig.windowResizeEnable = true;
-    appConfig.windowDarkmode = true;
-    appConfig.windowRounded = true;
-    appConfig.vsyncEnable = true;
-    appConfig.glVersionMajor = 4;
-    appConfig.glVersionMinor = 6;
-    appConfig.dearImguiGlslVersionString; // leave default
-    appConfig.customDrawFunc = render;
-    appConfig.customKeyCallback = nullptr;
-    appConfig.customErrorCallback = nullptr;
-    appConfig.customDropCallback = dropCallback;
+    std::cout << "Average over " << ITERS << " iterations:" << std::endl;
 
-    try {
-        OpenGLApplication app(appConfig);
+    timer.reset();
+    for (int i = 0; i < ITERS; i++) {
+        dtedFile.loadFile(DtedFile::LoadStrategy::STL_IFSTREAM);
     }
-    catch (const std::exception& e) {
-        std::cout << e.what() << std::endl;
-    }
+    double ifstreamMs = (double)timer.getElapsedTimeMs() / ITERS;
+    std::cout << "ifstream: " << ifstreamMs << std::endl;
 
-    return 0;
+    timer.reset();
+    for (int i = 0; i < ITERS; i++) {
+        dtedFile.loadFile(DtedFile::LoadStrategy::WINDOWS_MEMORY_MAP);
+    }
+    double windowsMemoryMapTime = (double)timer.getElapsedTimeMs() / ITERS;
+    std::cout << "windows memory map: " << windowsMemoryMapTime << std::endl;
+
+    timer.reset();
+    for (int i = 0; i < ITERS; i++) {
+        dtedFile.loadFile(DtedFile::LoadStrategy::WINDOWS_MEMORY_MAP_PREFETCH);
+    }
+    double windowsMemoryMapPrefetchTime = (double)timer.getElapsedTimeMs() / ITERS;
+    std::cout << "windows memory map (prefetch): " << windowsMemoryMapPrefetchTime << std::endl;
+
+    timer.reset();
+    for (int i = 0; i < ITERS; i++) {
+        dtedFile.loadFile(DtedFile::LoadStrategy::WINDOWS_DIRECT_READ);
+    }
+    double windowsDirectReadTime = (double)timer.getElapsedTimeMs() / ITERS;
+    std::cout << "windows direct read: " << windowsDirectReadTime << std::endl;
+
+    //OpenGLApplication::ApplicationConfig appConfig = {};
+    //appConfig.windowName = "Dteditor";
+    //appConfig.windowInitWidth = 600;
+    //appConfig.windowInitHeight = 1000;
+    //appConfig.windowPosX = 200;
+    //appConfig.windowPosY = 200;
+    //appConfig.windowBorderless = false;
+    //appConfig.windowResizeEnable = true;
+    //appConfig.windowDarkmode = true;
+    //appConfig.windowRounded = true;
+    //appConfig.vsyncEnable = true;
+    //appConfig.glVersionMajor = 4;
+    //appConfig.glVersionMinor = 6;
+    //appConfig.dearImguiGlslVersionString; // leave default
+    //appConfig.customDrawFunc = render;
+    //appConfig.customKeyCallback = nullptr;
+    //appConfig.customErrorCallback = nullptr;
+    //appConfig.customDropCallback = dropCallback;
+
+    //try {
+    //    OpenGLApplication app(appConfig);
+    //}
+    //catch (const std::exception& e) {
+    //    std::cout << e.what() << std::endl;
+    //}
+
+    return EXIT_SUCCESS;
 }
