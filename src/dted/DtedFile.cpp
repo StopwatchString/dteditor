@@ -508,6 +508,9 @@ bool DtedFile::loadElevations(const std::byte* data)
         //}
     }
 
+    delete[] _elevations;
+    _elevations = nullptr;
+
     return retVal;
 }
 
