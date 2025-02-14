@@ -151,6 +151,14 @@ int main()
     std::cout << std::left << std::setw(60) << "windows direct read non-buffered: " << std::right << std::setw(12)
               << windowsDirectReadTime << "ms" << std::endl;
 
+    timer.reset();
+    for (int i = 0; i < ITERS; i++) {
+        dtedFile.loadFile(DtedFile::LoadStrategy::WINDOWS_DIRECT_READ_NON_BUFFERED_OVERLAPPED);
+    }
+    double windowsDirectReadOverlappedTime = (double)timer.getElapsedTimeMs() / ITERS;
+    std::cout << std::left << std::setw(60) << "windows direct read non-buffered overlapped: " << std::right << std::setw(12)
+              << windowsDirectReadOverlappedTime << "ms" << std::endl;
+
     // OpenGLApplication::ApplicationConfig appConfig = {};
     // appConfig.windowName = "Dteditor";
     // appConfig.windowInitWidth = 600;

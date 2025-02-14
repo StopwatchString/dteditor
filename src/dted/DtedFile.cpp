@@ -395,6 +395,74 @@ void DtedFile::loadFile(const LoadStrategy strategy)
             CloseHandle(hFile);
             break;
         }
+        //////////////////////////////////////////////////
+        // WINDOWS_DIRECT_READ_NON_BUFFERED_OVERLAPPED
+        //////////////////////////////////////////////////
+        case LoadStrategy::WINDOWS_DIRECT_READ_NON_BUFFERED_OVERLAPPED: {
+            HANDLE hFile = CreateFileA(
+                _filename.c_str(),                             // lpFileName,
+                GENERIC_READ,                                  // dwDesiredAccess,
+                FILE_SHARE_READ,                               // dwShareMode,
+                NULL,                                          // lpSecurityAttributes,
+                OPEN_EXISTING,                                 // dwCreationDisposition,
+                FILE_FLAG_OVERLAPPED | FILE_FLAG_NO_BUFFERING, // dwFlagsAndAttribute,
+                NULL                                           // hTemplateFile
+            );
+
+            if (hFile == NULL) {
+                std::cout << "ERROR: Could not open file " << _filename << std::endl;
+                return;
+            }
+
+            // Get file size
+            LARGE_INTEGER fileSize;
+            if (!GetFileSizeEx(hFile, &fileSize)) {
+                std::cerr << "ERROR: Could not get file size" << std::endl;
+                CloseHandle(hFile);
+                return;
+            }
+
+            SYSTEM_INFO sysInfo;
+            GetSystemInfo(&sysInfo);
+            size_t alignment = sysInfo.dwPageSize; // Typically 4096
+
+            // Adjust to be a multiple of the page size
+            size_t adjustedSize = fileSize.QuadPart + (sysInfo.dwPageSize - (fileSize.QuadPart % sysInfo.dwPageSize));
+
+            void* buffer = _aligned_malloc(adjustedSize, alignment);
+            if (!buffer) {
+                std::cerr << "ERROR: Could not allocate buffer" << std::endl;
+                CloseHandle(hFile);
+                return;
+            }
+
+            struct readJob
+            {
+                OVERLAPPED overlapped;
+                DWORD bytesRead;
+            };
+
+            const static size_t SECTORS = 8;
+            const size_t sectorSize = adjustedSize / SECTORS;
+            std::array<readJob, SECTORS> events = {};
+            HANDLE waitEvents[SECTORS] = {};
+            for (int i = 0; i < SECTORS; i++) {
+                events[i].overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+                waitEvents[i] = events[i].overlapped.hEvent;
+                events[i].overlapped.Offset = i * sectorSize;
+
+                ReadFile(hFile, (std::byte*)buffer + events[i].overlapped.Offset, sectorSize, &events[i].bytesRead, &events[i].overlapped);
+            }
+
+            WaitForMultipleObjects(SECTORS, waitEvents, TRUE, INFINITE);
+
+            if (buffer != nullptr) {
+                _valid = parseFile((std::byte*)buffer);
+            }
+
+            CloseHandle(hFile);
+            break;
+        }
     }
 }
 
