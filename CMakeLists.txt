@@ -56,7 +56,19 @@ target_include_directories(
 )
 
 # -------------- EXTERNAL PROJECTS -------------
+add_subdirectory("external/cpputils")
 
+add_subdirectory("external/glh")
+
+add_subdirectory("external/vectorclass")
+set_property(TARGET vectorclass PROPERTY FOLDER "${FOLDER_TARGET}external/vectorclass")
+
+target_link_libraries(
+    ${TARGET_NAME}_lib
+    PUBLIC glh_lib
+    PUBLIC cpputils_lib
+    PUBLIC vectorclass
+)
 
 # ------------- PROJECT EXECUTABLE -------------
 add_executable(${TARGET_NAME} src/main/main.cpp)
