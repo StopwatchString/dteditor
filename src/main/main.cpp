@@ -13,8 +13,8 @@ using dted::DtedFile;
 #include <vector>
 #include <iomanip>
 
-const std::string file1 = "data/n39_w084_1arc_v3.dt2";
-const std::string file2 = "data/n39_w085_1arc_v3.dt2";
+const std::string file1 = "../data/n39_w084_1arc_v3.dt2";
+const std::string file2 = "../data/n39_w085_1arc_v3.dt2";
 Threadpool threadpool(32);
 
 const std::vector<std::string> getDtedFileDataLines(const DtedFile& file)
