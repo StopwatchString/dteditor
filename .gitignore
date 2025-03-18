@@ -1,5 +1,6 @@
-﻿x64
-.vs
-imgui.ini
-bin
-build/vs2022
+# Build artefacts
+build/
+
+# Docs
+docs/html/
+docs/latex/
