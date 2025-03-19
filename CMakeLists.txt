@@ -22,20 +22,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # List all project source in these variables
 set(SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Threadpool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/dted/DtedFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/dted/dtedParsedStructs.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/dted/functionalDted.cpp
 )
 set(PRIVATE_HEADERS
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/icon.h
 )
 set(PUBLIC_HEADERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/Threadpool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/icon.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/dted/DtedFile.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/dted/dtedFileDefinitions.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/dted/dtedParsedStructs.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/dted/functionalDted.h
 )
 # List all GTest files here
 # Generally every hpp/cpp combo should have a matching [filename].test.cpp.
