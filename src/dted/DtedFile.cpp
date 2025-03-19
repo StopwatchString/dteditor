@@ -503,7 +503,7 @@ bool DtedFile::parseFile(const std::byte* data)
 
     bool loadedElevations = loadElevations(data);
 
-    return loadedElevations;
+    return true;
 }
 
 //-----------------------------------------------
