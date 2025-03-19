@@ -25,6 +25,9 @@ set(HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/include/vectormath_trig.h
 )
 
+set(SOURCES
+)
+
 add_library(vectorclass INTERFACE ${SOURCES} ${HEADERS})
 target_include_directories(
     vectorclass
