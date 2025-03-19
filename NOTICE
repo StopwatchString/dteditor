@@ -1,0 +1,12 @@
+NOTICE
+
+This project includes code from the following third-party libraries:
+
+1. VectorClass version2 (https://github.com/vectorclass/version2)
+
+   Copyright (c) [2025] [Agner Fog]
+   
+   Licensed under the Apache License, Version 2.0.
+
+   Modifications:
+   - None.
