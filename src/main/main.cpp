@@ -28,8 +28,10 @@ size_t writeDataAligned(std::ofstream& file, const char* buf, const size_t bufSi
     // Read-made vector 
     static constexpr std::array<char, alignment> fillData{ fill };
 
-    file.write(buf, bufSize);
-    size_t padding = alignment - (bufSize % alignment);
+    if (bufSize > 0 && buf != nullptr) {
+        file.write(buf, bufSize);
+    }
+    size_t padding = (alignment - (bufSize % alignment)) % alignment;
     file.write(fillData.data(), padding);
 
     return (bufSize / alignment) + 1;
@@ -77,7 +79,7 @@ void generateAlignedDtedFile(const std::filesystem::path& file)
     inputFile.close();
 
     std::filesystem::path newFile = file.string() + ".aligned";
-    std::ofstream outputFile(newFile);
+    std::ofstream outputFile(newFile, std::ios::binary | std::ios::out | std::ios::trunc);
     if (!outputFile.is_open()) {
         std::cerr << "ERROR Cannot open file " << newFile << std::endl;
         return;
@@ -101,7 +103,7 @@ void generateAlignedDtedFile(const std::filesystem::path& file)
 
     for (size_t lon = 0; lon < lonLines; lon++) {
         uint32_t baseOffset = recordsOffset + lon * recordSize;
-        writeDataAligned(outputFile, (const char*)data.get(), recordSize);
+        writeDataAligned(outputFile, (const char*)data.get() + baseOffset, recordSize);
     }
 
     std::cout << sectors << std::endl;
