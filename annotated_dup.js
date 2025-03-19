@@ -10,6 +10,5 @@ var annotated_dup =
       [ "DtedFile", "classdted_1_1DtedFile.html", null ],
       [ "UserHeaderLabel", "structdted_1_1UserHeaderLabel.html", null ],
       [ "UserHeaderLabelBlob", "structdted_1_1UserHeaderLabelBlob.html", null ]
-    ] ],
-    [ "Threadpool", "classThreadpool.html", null ]
+    ] ]
 ];
