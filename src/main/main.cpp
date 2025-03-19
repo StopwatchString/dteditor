@@ -5,8 +5,7 @@ using dted::DtedFile;
 #include "dted/dtedParsedStructs.h"
 #include "Threadpool.h"
 
-#include "cpputils/windows/dwm.h"
-#include "glh/classes/OpenGLApplication.h"
+#include "glh/OpenGLApplication.h"
 #include "cpputils/Timer.h"
 
 #include <iostream>
