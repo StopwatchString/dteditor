@@ -4,3 +4,6 @@
 [submodule "external/glh"]
 	path = external/glh
 	url = https://github.com/StopwatchString/glh.git
+[submodule "external/tracy"]
+	path = external/tracy
+	url = https://github.com/wolfpld/tracy.git

@@ -59,16 +59,25 @@ add_subdirectory("external/glh")
 add_subdirectory("external/vectorclass")
 set_property(TARGET vectorclass PROPERTY FOLDER "${FOLDER_TARGET}external/vectorclass")
 
+add_subdirectory("external/tracy")
+set_property(TARGET TracyClient PROPERTY FOLDER "${FOLDER_TARGET}external/tracy")
+target_compile_definitions(TracyClient PUBLIC "$<$<CONFIG:Debug>:TRACY_ENABLE>")
+
 target_link_libraries(
     ${TARGET_NAME}_lib
     PUBLIC glh_lib
     PUBLIC cpputils_lib
     PUBLIC vectorclass
+    PUBLIC TracyClient
 )
 
 # ------------- PROJECT EXECUTABLE -------------
 add_executable(${TARGET_NAME} src/main/main.cpp)
 target_link_libraries(${TARGET_NAME} PRIVATE ${TARGET_NAME}_lib)
+target_link_libraries(
+    ${TARGET_NAME}
+    PUBLIC TracyClient
+)
 
 # ------------------ TESTING ------------------
 If (${TARGET_NAME}_BUILD_TESTS)
