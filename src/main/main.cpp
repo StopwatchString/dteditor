@@ -56,7 +56,7 @@ bool generateAlignedDtedFile(const std::filesystem::path& file)
 
     {
         ZoneScopedN("Read File");
-        fileBuffer = cpputils::win::directFileToBuffer(file);
+        fileBuffer = cpputils::win::directFileToBuffer(file, 2);
         if (fileBuffer.buf == nullptr) return false;
     }
 
@@ -96,7 +96,14 @@ int main()
 {
     bool running = true;
     while (running) {
-        generateAlignedDtedFile(file3);
+        //generateAlignedDtedFile(file3);
+
+        {
+            ZoneScopedN("ReadFile");
+
+            cpputils::win::AlignedBuffer fileBuffer = cpputils::win::directFileToBuffer("C:\\test.txt", 100);
+
+        }
 
         if (_kbhit()) {
             int ch = std::tolower(_getch());
