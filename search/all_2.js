@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['datasetidentification_0',['DataSetIdentification',['../structdted_1_1DataSetIdentification.html',1,'dted']]],
-  ['datasetidentificationblob_1',['DataSetIdentificationBlob',['../structdted_1_1DataSetIdentificationBlob.html',1,'dted']]],
-  ['dtedfile_2',['DtedFile',['../classdted_1_1DtedFile.html',1,'dted']]]
+  ['columnfooterblob_0',['ColumnFooterBlob',['../structdted_1_1ColumnFooterBlob.html',1,'dted']]],
+  ['columnheaderblob_1',['ColumnHeaderBlob',['../structdted_1_1ColumnHeaderBlob.html',1,'dted']]]
 ];
