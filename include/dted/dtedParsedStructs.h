@@ -20,7 +20,7 @@ struct UserHeaderLabel
     uint16_t longitudeIntervalArcSeconds{};     // 21-24 | Longitude data interval in arc seconds       
     uint16_t latitudeIntervalArcSeconds{};      // 25-28 | Latitude data interval in arc seconds      
     uint16_t absoluteVerticalAccuracy{};        // 29-32 | Absolute vertical accuracy    
-    char unclassifiedSecurtiyCode{};            // 33-35 | Unclassified security code
+    char unclassifiedSecurityCode{};            // 33-35 | Unclassified security code
     std::string uniqueReferenceNumber;          // 36-47 | Unique reference number  
     uint16_t numberOfLongitudeLines{};          // 48-51 | Number of longitude lines  
     uint16_t numberOfLatitudePoints{};          // 52-55 | Number of latitude points  

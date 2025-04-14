@@ -104,7 +104,7 @@ UserHeaderLabel::UserHeaderLabel(const UserHeaderLabelBlob& uhlBlob)
     }
 
     // unclassifiedSecurityCode
-    unclassifiedSecurtiyCode = static_cast<char>(uhlBlob.securityCode[0]);
+    unclassifiedSecurityCode = static_cast<char>(uhlBlob.securityCode[0]);
 
     // uniqueReferenceNumber
     stringFromChars(uniqueReferenceNumber, uhlBlob.uniqueReference);
